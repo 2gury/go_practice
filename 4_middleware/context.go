@@ -20,60 +20,62 @@ type Timing struct {
 }
 
 type ctxTimings struct {
-	sync.Mutex
 	Data map[string]*Timing
+	mx sync.Mutex
 }
 
-func trackContextTimings(ctx context.Context, metricName string, start time.Time) {
+func trackTime(ctx context.Context, workName string, start time.Time) {
 	timings, ok := ctx.Value(timingsKey).(*ctxTimings)
 	if !ok {
 		return
 	}
 	elapsed := time.Since(start)
-	timings.Lock()
-	defer timings.Unlock()
-	if metric, isMetricExist := timings.Data[metricName]; !isMetricExist {
-		timings.Data[metricName] = &Timing{
+	timings.mx.Lock()
+	defer timings.mx.Unlock()
+	if ctxTiming, isTimingExist := timings.Data[workName]; !isTimingExist {
+		timings.Data[workName] = &Timing{
 			Count: 1,
 			Duration: elapsed,
 		}
 	} else {
-		metric.Count++
-		metric.Duration += elapsed
+		ctxTiming.Count++
+		ctxTiming.Duration += elapsed
 	}
 }
 
-
 func emulateWork(ctx context.Context, workName string) {
-	defer trackContextTimings(ctx, workName, time.Now())
-	rnd := time.Duration(100 * time.Millisecond)
-	time.Sleep(rnd)
+	defer trackTime(ctx, workName, time.Now())
+	time.Sleep(200 * time.Millisecond)
 }
 
 func rootPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	emulateWork(ctx, "lol")
 	emulateWork(ctx, "kek")
-	emulateWork(ctx, "foo")
-	emulateWork(ctx, "foo")
+	emulateWork(ctx, "fek")
+	emulateWork(ctx, "lol")
 	emulateWork(ctx, "kek")
+	emulateWork(ctx, "fek")
+	emulateWork(ctx, "lol")
+	emulateWork(ctx, "kek")
+	emulateWork(ctx, "fek")
 }
 
-func logContextTimings(ctx context.Context, path string, start time.Time) {
+func logTimings(ctx context.Context, start time.Time) {
 	timings, ok := ctx.Value(timingsKey).(*ctxTimings)
 	if !ok {
 		return
 	}
-	totalReal := time.Since(start)
-	buf := bytes.NewBufferString(path)
-	var total time.Duration
+	endTime := time.Since(start)
+	buf := bytes.NewBufferString("timings")
+	var totalTime time.Duration
 	for timing, value := range timings.Data {
-		total += value.Duration
-		buf.WriteString(fmt.Sprintf("\n\t(%s) %d %s", timing, value.Count, value.Duration))
+		totalTime += value.Duration
+		buf.WriteString(fmt.Sprintf("\n\t [%s] %d %s ", timing, value.Count, value.Duration))
 	}
-	buf.WriteString(fmt.Sprintf("\n\t total: %s", totalReal))
-	buf.WriteString(fmt.Sprintf("\n\t tracked: %s", total))
-	buf.WriteString(fmt.Sprintf("\n\t unkn: %s", totalReal - total))
+	buf.WriteString(fmt.Sprintf("\n\t total   : %s", endTime))
+	buf.WriteString(fmt.Sprintf("\n\t tracked : %s", totalTime))
+	buf.WriteString(fmt.Sprintf("\n\t unknown : %s", endTime - totalTime))
 
 	fmt.Println(buf.String())
 }
@@ -84,18 +86,18 @@ func timingsMiddleware(next http.Handler) http.Handler {
 		ctx = context.WithValue(ctx,
 			timingsKey,
 			&ctxTimings{
-			Data: make(map[string]*Timing),
+				Data: make(map[string]*Timing),
+				mx: sync.Mutex{},
 			})
-		defer logContextTimings(ctx, r.URL.Path, time.Now())
+		defer logTimings(ctx, time.Now())
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/", rootPage)
+	m := mux.NewRouter()
+	m.HandleFunc("/", rootPage)
 
-	handler := timingsMiddleware(r)
-
+	handler := timingsMiddleware(m)
 	http.ListenAndServe(":8080", handler)
 }
