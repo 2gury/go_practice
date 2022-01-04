@@ -8,7 +8,12 @@ import (
 )
 
 func mainPage(w http.ResponseWriter, r *http.Request) {
-
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		w.Write([]byte("Hello"))
+	} else {
+		w.Write([]byte("Hello, " + cookie.Value))
+	}
 }
 
 func loginPage(w http.ResponseWriter, r *http.Request) {
