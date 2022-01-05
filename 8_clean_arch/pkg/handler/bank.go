@@ -1,15 +1,19 @@
 package handler
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
-func GetBanks(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("banks"))
+func (h *Handler) GetBanks(w http.ResponseWriter, r *http.Request) {
+	banks, _ := h.Service.GetBanks()
+	w.Write([]byte(fmt.Sprintf("%#v", banks)))
 }
 
-func GetBankById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetBankById(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("bank by id"))
 }
 
-func GetBankByCity(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetBankByCity(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("bank by city"))
 }
