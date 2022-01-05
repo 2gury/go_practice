@@ -11,7 +11,7 @@ import (
 type SendMessage struct {
 	Id int `valid:",optional"`
 	Name string `schema:"from" valid:"email"`
-	Message string `valid:"message"`
+	Message string `valid:"message,required"`
 }
 
 func rootPage(w http.ResponseWriter, r *http.Request) {
@@ -57,8 +57,7 @@ func init() {
 			if !ok {
 				return false
 			}
-			fmt.Println(subject)
-			if subject == "" || len(subject) > 10 {
+			if len(subject) > 10 {
 				return false
 			}
 			return true
