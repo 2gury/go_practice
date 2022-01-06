@@ -3,5 +3,8 @@ package models
 type Bank struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
-	Cities []int `json:"cities"`
+}
+
+type BankInput struct {
+	Name string `json:"name"`
 }

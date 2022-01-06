@@ -19,11 +19,8 @@ func (h *Handler) InitRoutes() *mux.Router {
 	handler := mux.NewRouter()
 
 	handler.HandleFunc("/bank", h.GetBanks).Methods("GET")
+	handler.HandleFunc("/bank/", h.AddBank).Methods("POST")
 	handler.HandleFunc("/bank/{id:[0-9]+}", h.GetBankById).Methods("GET")
-	handler.HandleFunc("/bank/{cityName}", h.GetBankByCity).Methods("GET")
-
-	handler.HandleFunc("/city", h.GetCities).Methods("GET")
-	handler.HandleFunc("/city/{id:[0-9]+}", h.GetCityById).Methods("GET")
 
 	return handler
 }

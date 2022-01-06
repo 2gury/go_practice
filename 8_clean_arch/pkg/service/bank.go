@@ -18,3 +18,11 @@ func NewBankSvc(repo *repository.Repository) *BankSvc {
 func (bsv *BankSvc) GetBanks() ([]*models.Bank, error) {
 	return bsv.rep.GetBanks()
 }
+
+func (bsv *BankSvc) GetBankById(id int) (*models.Bank, error) {
+	return bsv.rep.GetBankById(id)
+}
+
+func (bsv *BankSvc) AddBank(bank models.BankInput) (int, error) {
+	return bsv.rep.AddBank(bank)
+}

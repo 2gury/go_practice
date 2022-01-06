@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	mapRep := repository.NewMapRepository()
+	mapRep := repository.NewInRuntimeRepository()
 
 	rep := repository.NewRepository(mapRep)
 	svc := service.NewService(rep)

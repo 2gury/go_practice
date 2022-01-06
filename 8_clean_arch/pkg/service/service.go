@@ -7,15 +7,12 @@ import (
 
 type Service struct {
 	BankService
-	CityService
 }
 
 type BankService interface {
 	GetBanks() ([]*models.Bank, error)
-}
-
-type CityService interface {
-
+	GetBankById(id int) (*models.Bank, error)
+	AddBank(bank models.BankInput) (int, error)
 }
 
 func NewService(rep *repository.Repository) *Service {
