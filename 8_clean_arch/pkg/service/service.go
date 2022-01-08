@@ -3,6 +3,7 @@ package service
 import (
 	"go_practice/8_clean_arch/models"
 	"go_practice/8_clean_arch/pkg/repository"
+	"go_practice/8_clean_arch/pkg/service/product"
 )
 
 type Service struct {
@@ -18,6 +19,6 @@ type ProductService interface {
 
 func NewService(rep *repository.Repository) *Service {
 	return &Service{
-		ProductService: NewProductSvc(rep),
+		ProductService: product.NewProductSvc(rep),
 	}
 }

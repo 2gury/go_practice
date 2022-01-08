@@ -1,4 +1,4 @@
-package service
+package product
 
 import (
 	"go_practice/8_clean_arch/models"

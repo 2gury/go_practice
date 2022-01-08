@@ -1,14 +1,12 @@
 package models
 
 type Product struct {
-	Id int `json:"id"`
+	Id    int    `json:"id"`
 	Title string `json:"title"`
-	Price int `json:"price"`
+	Price int    `json:"price"`
 }
 
 type ProductInput struct {
 	Title string `json:"title"`
-	Price int `json:"price"`
+	Price int    `json:"price"`
 }
-
-

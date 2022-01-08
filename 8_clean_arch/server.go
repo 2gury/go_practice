@@ -13,9 +13,9 @@ type HTTPServer struct {
 func NewServer(port string, handler http.Handler) *HTTPServer {
 	return &HTTPServer{
 		Server: &http.Server{
-			Addr: ":" + port,
-			Handler: handler,
-			ReadTimeout: time.Second,
+			Addr:         ":" + port,
+			Handler:      handler,
+			ReadTimeout:  time.Second,
 			WriteTimeout: time.Second,
 		},
 	}

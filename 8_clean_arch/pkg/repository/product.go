@@ -66,4 +66,3 @@ func (r *ProductRep) UpdateProduct(productId int, updatedProduct models.ProductI
 	product.Price = updatedProduct.Price
 	return 1, nil
 }
-

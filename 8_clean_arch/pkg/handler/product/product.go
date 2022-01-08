@@ -1,4 +1,4 @@
-package handler
+package product
 
 import (
 	"encoding/json"
@@ -8,19 +8,19 @@ import (
 	"strconv"
 )
 
-func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
+func (h *handler.Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.Service.GetProducts()
 	if err != nil {
 		http.Error(w, "{Error while get products}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{} {
+	body := map[string]interface{}{
 		"body": products,
 	}
 	json.NewEncoder(w).Encode(body)
 }
 
-func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
+func (h *handler.Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
 		http.Error(w, "{Error when get product id}", http.StatusInternalServerError)
@@ -40,13 +40,13 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "{No product with this id}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{} {
+	body := map[string]interface{}{
 		"body": product,
 	}
 	json.NewEncoder(w).Encode(body)
 }
 
-func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
+func (h *handler.Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.ProductInput
 	json.NewDecoder(r.Body).Decode(&product)
 	id, err := h.Service.AddProduct(product)
@@ -54,13 +54,13 @@ func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "{Error while add product}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{} {
+	body := map[string]interface{}{
 		"id": id,
 	}
 	json.NewEncoder(w).Encode(body)
 }
 
-func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+func (h *handler.Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
 		http.Error(w, "{Error when get product id}", http.StatusInternalServerError)
@@ -78,7 +78,7 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "{Error while update product}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{} {
+	body := map[string]interface{}{
 		"updated_elements": numUpdated,
 	}
 	json.NewEncoder(w).Encode(body)
