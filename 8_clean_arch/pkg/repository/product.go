@@ -17,9 +17,9 @@ func (r *ProductRep) GetProducts() ([]*models.Product, error) {
 }
 
 func (r *ProductRep) GetProductById(id int) (*models.Product, error) {
-	for i := 0; i < len(r.data.Products); i++ {
-		if r.data.Products[i].Id == id {
-			return r.data.Products[i], nil
+	for _, product := range r.data.Products {
+		if product.Id == id {
+			return product, nil
 		}
 	}
 	return nil, nil
