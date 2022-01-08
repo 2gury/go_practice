@@ -3,10 +3,10 @@ package repository
 import "go_practice/8_clean_arch/models"
 
 type ProductRep struct {
-	rep *InRuntimeRepository
+	rep *LocalRepository
 }
 
-func NewProductRep(mapRep *InRuntimeRepository) *ProductRep {
+func NewProductRep(mapRep *LocalRepository) *ProductRep {
 	return &ProductRep{
 		rep: mapRep,
 	}

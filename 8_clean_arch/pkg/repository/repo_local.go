@@ -5,14 +5,14 @@ import (
 	"sync"
 )
 
-type InRuntimeRepository struct {
+type LocalRepository struct {
 	Products []*models.Product
 	mu *sync.Mutex
 	nextId int
 }
 
-func NewInRuntimeRepository() *InRuntimeRepository {
-	return &InRuntimeRepository{
+func NewInRuntimeRepository() *LocalRepository {
+	return &LocalRepository{
 		Products: []*models.Product{
 			&models.Product{
 				Id:     0,

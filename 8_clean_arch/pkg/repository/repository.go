@@ -12,7 +12,7 @@ type ProductRepository interface {
 	AddProduct(product models.Product) (int, error)
 }
 
-func NewRepository(rep *InRuntimeRepository) *Repository {
+func NewRepository(rep *LocalRepository) *Repository {
 	return &Repository{
 		ProductRepository: NewProductRep(rep),
 	}
