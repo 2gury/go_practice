@@ -1,6 +1,9 @@
 package repository
 
-import "go_practice/8_clean_arch/models"
+import (
+	"github.com/pkg/errors"
+	"go_practice/8_clean_arch/models"
+)
 
 type ProductRep struct {
 	data *LocalRepository
@@ -26,6 +29,9 @@ func (r *ProductRep) GetProductById(id int) (*models.Product, error) {
 }
 
 func (r *ProductRep) AddProduct(product models.Product) (int, error) {
+	if product.Price <= 0 || product.Title == "" {
+		return -1, errors.New("Error when add product. Price should be greater than 0")
+	}
 	r.data.mu.Lock()
 	defer r.data.mu.Unlock()
 	maxId := 0
