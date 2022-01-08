@@ -6,4 +6,9 @@ type Product struct {
 	Price int `json:"price"`
 }
 
+type ProductInput struct {
+	Title string `json:"title"`
+	Price int `json:"price"`
+}
+
 

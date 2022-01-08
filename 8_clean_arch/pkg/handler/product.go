@@ -47,7 +47,7 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
-	var product models.Product
+	var product models.ProductInput
 	json.NewDecoder(r.Body).Decode(&product)
 	id, err := h.Service.AddProduct(product)
 	if err != nil {
@@ -56,6 +56,30 @@ func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	body := map[string]interface{} {
 		"id": id,
+	}
+	json.NewEncoder(w).Encode(body)
+}
+
+func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	productId, ok := mux.Vars(r)["id"]
+	if !ok {
+		http.Error(w, "{Error when get product id}", http.StatusInternalServerError)
+		return
+	}
+	intProductId, err := strconv.Atoi(productId)
+	if err != nil {
+		http.Error(w, "{Error while get product by id}", http.StatusInternalServerError)
+		return
+	}
+	var product models.ProductInput
+	json.NewDecoder(r.Body).Decode(&product)
+	numUpdated, err := h.Service.UpdateProduct(intProductId, product)
+	if err != nil {
+		http.Error(w, "{Error while update product}", http.StatusInternalServerError)
+		return
+	}
+	body := map[string]interface{} {
+		"updated_elements": numUpdated,
 	}
 	json.NewEncoder(w).Encode(body)
 }

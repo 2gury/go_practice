@@ -20,6 +20,7 @@ func (h *Handler) InitRoutes() *mux.Router {
 
 	handler.HandleFunc("/product", h.GetProducts).Methods("GET")
 	handler.HandleFunc("/product/", h.AddProduct).Methods("POST")
+	handler.HandleFunc("/product/{id:[0-9]+}", h.UpdateProduct).Methods("POST")
 	handler.HandleFunc("/product/{id:[0-9]+}", h.GetProductById).Methods("GET")
 
 	return handler

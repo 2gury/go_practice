@@ -28,7 +28,7 @@ func (r *ProductRep) GetProductById(id int) (*models.Product, error) {
 	return nil, nil
 }
 
-func (r *ProductRep) AddProduct(product models.Product) (int, error) {
+func (r *ProductRep) AddProduct(product models.ProductInput) (int, error) {
 	if product.Price <= 0 || product.Title == "" {
 		return -1, errors.New("Error when add product. Price should be greater than 0")
 	}
@@ -47,5 +47,23 @@ func (r *ProductRep) AddProduct(product models.Product) (int, error) {
 		Price: product.Price,
 	})
 	return maxId, nil
+}
+
+func (r *ProductRep) UpdateProduct(productId int, updatedProduct models.ProductInput) (int, error) {
+	if updatedProduct.Price <= 0 || updatedProduct.Title == "" {
+		return 0, errors.New("Error when add product. Price should be greater than 0")
+	}
+	product, err := r.GetProductById(productId)
+	if product == nil {
+		return 0, errors.New("Error when add product. No product with this id")
+	}
+	if err != nil {
+		return 0, errors.New("Error when add product")
+	}
+	r.data.mu.Lock()
+	defer r.data.mu.Unlock()
+	product.Title = updatedProduct.Title
+	product.Price = updatedProduct.Price
+	return 1, nil
 }
 

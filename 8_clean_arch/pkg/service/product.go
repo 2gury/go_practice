@@ -23,6 +23,10 @@ func (s *ProductSvc) GetProductById(id int) (*models.Product, error) {
 	return s.rep.GetProductById(id)
 }
 
-func (s *ProductSvc) AddProduct(product models.Product) (int, error) {
+func (s *ProductSvc) AddProduct(product models.ProductInput) (int, error) {
 	return s.rep.AddProduct(product)
+}
+
+func (s *ProductSvc) UpdateProduct(productId int, updatedProduct models.ProductInput) (int, error) {
+	return s.rep.UpdateProduct(productId, updatedProduct)
 }

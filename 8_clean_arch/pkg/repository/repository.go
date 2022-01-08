@@ -9,7 +9,8 @@ type Repository struct {
 type ProductRepository interface {
 	GetProducts() ([]*models.Product, error)
 	GetProductById(id int) (*models.Product, error)
-	AddProduct(product models.Product) (int, error)
+	AddProduct(product models.ProductInput) (int, error)
+	UpdateProduct(productId int, updatedProduct models.ProductInput) (int, error)
 }
 
 func NewRepository(rep *LocalRepository) *Repository {
