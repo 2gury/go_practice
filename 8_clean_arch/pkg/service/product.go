@@ -15,14 +15,14 @@ func NewProductSvc(repo *repository.Repository) *ProductSvc {
 	}
 }
 
-func (bsv *ProductSvc) GetProducts() ([]*models.Product, error) {
-	return bsv.rep.GetProducts()
+func (s *ProductSvc) GetProducts() ([]*models.Product, error) {
+	return s.rep.GetProducts()
 }
 
-func (bsv *ProductSvc) GetProductById(id int) (*models.Product, error) {
-	return bsv.rep.GetProductById(id)
+func (s *ProductSvc) GetProductById(id int) (*models.Product, error) {
+	return s.rep.GetProductById(id)
 }
 
-func (bsv *ProductSvc) AddProduct(product models.Product) (int, error) {
-	return bsv.rep.AddProduct(product)
+func (s *ProductSvc) AddProduct(product models.Product) (int, error) {
+	return s.rep.AddProduct(product)
 }

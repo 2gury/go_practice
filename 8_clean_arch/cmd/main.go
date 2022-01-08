@@ -9,9 +9,9 @@ import (
 )
 
 func main() {
-	mapRep := repository.NewInRuntimeRepository()
+	data := repository.NewLocalRepository()
 
-	rep := repository.NewRepository(mapRep)
+	rep := repository.NewRepository(data)
 	svc := service.NewService(rep)
 	hnd := handler.NewHandler(svc)
 

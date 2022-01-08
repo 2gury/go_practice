@@ -11,7 +11,7 @@ type LocalRepository struct {
 	nextId int
 }
 
-func NewInRuntimeRepository() *LocalRepository {
+func NewLocalRepository() *LocalRepository {
 	return &LocalRepository{
 		Products: []*models.Product{
 			&models.Product{
