@@ -3,17 +3,17 @@ package repository
 import "go_practice/8_clean_arch/models"
 
 type Repository struct {
-	BankRepository
+	ProductRepository
 }
 
-type BankRepository interface {
-	GetBanks() ([]*models.Bank, error)
-	GetBankById(id int) (*models.Bank, error)
-	AddBank(bank models.BankInput) (int, error)
+type ProductRepository interface {
+	GetProducts() ([]*models.Product, error)
+	GetProductById(id int) (*models.Product, error)
+	AddProduct(product models.Product) (int, error)
 }
 
 func NewRepository(rep *InRuntimeRepository) *Repository {
 	return &Repository{
-		BankRepository: NewBankRep(rep),
+		ProductRepository: NewProductRep(rep),
 	}
 }

@@ -6,25 +6,28 @@ import (
 )
 
 type InRuntimeRepository struct {
-	Banks []*models.Bank
+	Products []*models.Product
 	mu *sync.Mutex
 	nextId int
 }
 
 func NewInRuntimeRepository() *InRuntimeRepository {
 	return &InRuntimeRepository{
-		Banks: []*models.Bank{
-			&models.Bank{
+		Products: []*models.Product{
+			&models.Product{
 				Id:     0,
-				Name:   "Sberbank",
+				Title:   "Ипотека",
+				Price: 1000,
 			},
-			&models.Bank{
+			&models.Product{
 				Id:     1,
-				Name:   "Orenburg",
+				Title:  "Кредит",
+				Price: 500,
 			},
-			&models.Bank{
+			&models.Product{
 				Id:     2,
-				Name:   "VTB",
+				Title:   "Вклад",
+				Price: 100,
 			},
 		},
 		nextId: 3,

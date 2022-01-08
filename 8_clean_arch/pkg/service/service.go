@@ -6,17 +6,17 @@ import (
 )
 
 type Service struct {
-	BankService
+	ProductService
 }
 
-type BankService interface {
-	GetBanks() ([]*models.Bank, error)
-	GetBankById(id int) (*models.Bank, error)
-	AddBank(bank models.BankInput) (int, error)
+type ProductService interface {
+	GetProducts() ([]*models.Product, error)
+	GetProductById(id int) (*models.Product, error)
+	AddProduct(product models.Product) (int, error)
 }
 
 func NewService(rep *repository.Repository) *Service {
 	return &Service{
-		BankService: NewBankSvc(rep),
+		ProductService: NewProductSvc(rep),
 	}
 }

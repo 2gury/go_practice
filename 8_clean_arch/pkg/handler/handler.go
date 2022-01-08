@@ -18,9 +18,9 @@ func NewHandler(svc *service.Service) *Handler {
 func (h *Handler) InitRoutes() *mux.Router {
 	handler := mux.NewRouter()
 
-	handler.HandleFunc("/bank", h.GetBanks).Methods("GET")
-	handler.HandleFunc("/bank/", h.AddBank).Methods("POST")
-	handler.HandleFunc("/bank/{id:[0-9]+}", h.GetBankById).Methods("GET")
+	handler.HandleFunc("/product", h.GetProducts).Methods("GET")
+	handler.HandleFunc("/product/", h.AddProduct).Methods("POST")
+	handler.HandleFunc("/product/{id:[0-9]+}", h.GetProductById).Methods("GET")
 
 	return handler
 }
