@@ -7,8 +7,8 @@ import (
 
 type LocalRepository struct {
 	Products []*models.Product
+	Specials []*models.Special
 	mu *sync.Mutex
-	nextId int
 }
 
 func NewLocalRepository() *LocalRepository {
@@ -30,7 +30,20 @@ func NewLocalRepository() *LocalRepository {
 				Price: 100,
 			},
 		},
-		nextId: 3,
+		Specials: []*models.Special{
+			&models.Special{
+				Id:     0,
+				ProductId: 2,
+				Slogan: "Дешевле всего",
+				Discount: 15,
+			},
+			&models.Special{
+				Id:     1,
+				ProductId: 1,
+				Slogan: "Очень дорого",
+				Discount: 5,
+			},
+		},
 		mu: &sync.Mutex{},
 	}
 }

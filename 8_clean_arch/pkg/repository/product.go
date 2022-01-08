@@ -28,12 +28,18 @@ func (r *ProductRep) GetProductById(id int) (*models.Product, error) {
 func (r *ProductRep) AddProduct(product models.Product) (int, error) {
 	r.data.mu.Lock()
 	defer r.data.mu.Unlock()
+	maxId := 0
+	for i, product := range r.data.Products {
+		if product.Id > maxId {
+			maxId = i
+		}
+	}
+	maxId++
 	r.data.Products = append(r.data.Products, &models.Product{
-		Id:    r.data.nextId,
+		Id:    maxId,
 		Title: product.Title,
 		Price: product.Price,
 	})
-	r.data.nextId++
-	return r.data.nextId+ - 1, nil
+	return maxId, nil
 }
 
