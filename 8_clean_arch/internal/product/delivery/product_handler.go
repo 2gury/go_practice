@@ -1,17 +1,35 @@
-package product
+package delivery
 
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"go_practice/8_clean_arch/models"
+	"go_practice/8_clean_arch/internal/models"
+	"go_practice/8_clean_arch/internal/product"
 	"net/http"
 	"strconv"
 )
 
-func (h *handler.Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	products, err := h.Service.GetProducts()
+type ProductHandler struct {
+	u product.ProductUsecase
+}
+
+func NewProductHandler(use product.ProductUsecase) *ProductHandler {
+	return &ProductHandler{
+		u: use,
+	}
+}
+
+func (h *ProductHandler) Configure(m *mux.Router) {
+	m.HandleFunc("/product", h.GetProducts).Methods("GET")
+	m.HandleFunc("/product/", h.AddProduct).Methods("POST")
+	m.HandleFunc("/product/{id:[0-9]+}", h.UpdateProduct).Methods("POST")
+	m.HandleFunc("/product/{id:[0-9]+}", h.GetProductById).Methods("GET")
+}
+
+func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
+	products, err := h.u.List()
 	if err != nil {
-		http.Error(w, "{Error while get products}", http.StatusInternalServerError)
+		http.Error(w, "{Error while get product}", http.StatusInternalServerError)
 		return
 	}
 	body := map[string]interface{}{
@@ -20,7 +38,7 @@ func (h *handler.Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(body)
 }
 
-func (h *handler.Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
+func (h *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
 		http.Error(w, "{Error when get product id}", http.StatusInternalServerError)
@@ -31,7 +49,7 @@ func (h *handler.Handler) GetProductById(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "{Error while get product by id}", http.StatusInternalServerError)
 		return
 	}
-	product, err := h.Service.GetProductById(intProductId)
+	product, err := h.u.GetById(uint64(intProductId))
 	if err != nil {
 		http.Error(w, "{Error while get product by id}", http.StatusInternalServerError)
 		return
@@ -46,10 +64,10 @@ func (h *handler.Handler) GetProductById(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(body)
 }
 
-func (h *handler.Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
+func (h *ProductHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.ProductInput
 	json.NewDecoder(r.Body).Decode(&product)
-	id, err := h.Service.AddProduct(product)
+	id, err := h.u.Create(product)
 	if err != nil {
 		http.Error(w, "{Error while add product}", http.StatusInternalServerError)
 		return
@@ -60,7 +78,7 @@ func (h *handler.Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(body)
 }
 
-func (h *handler.Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
 		http.Error(w, "{Error when get product id}", http.StatusInternalServerError)
@@ -73,7 +91,7 @@ func (h *handler.Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 	}
 	var product models.ProductInput
 	json.NewDecoder(r.Body).Decode(&product)
-	numUpdated, err := h.Service.UpdateProduct(intProductId, product)
+	numUpdated, err := h.u.UpdateById(uint64(intProductId), product)
 	if err != nil {
 		http.Error(w, "{Error while update product}", http.StatusInternalServerError)
 		return
@@ -83,3 +101,4 @@ func (h *handler.Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) 
 	}
 	json.NewEncoder(w).Encode(body)
 }
+
