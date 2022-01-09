@@ -15,13 +15,13 @@ type key int
 const timingsKey key = 1
 
 type Timing struct {
-	Count int
+	Count    int
 	Duration time.Duration
 }
 
 type ctxTimings struct {
 	Data map[string]*Timing
-	mx sync.Mutex
+	mx   sync.Mutex
 }
 
 func trackTime(ctx context.Context, workName string, start time.Time) {
@@ -34,7 +34,7 @@ func trackTime(ctx context.Context, workName string, start time.Time) {
 	defer timings.mx.Unlock()
 	if ctxTiming, isTimingExist := timings.Data[workName]; !isTimingExist {
 		timings.Data[workName] = &Timing{
-			Count: 1,
+			Count:    1,
 			Duration: elapsed,
 		}
 	} else {
@@ -75,7 +75,7 @@ func logTimings(ctx context.Context, start time.Time) {
 	}
 	buf.WriteString(fmt.Sprintf("\n\t total   : %s", endTime))
 	buf.WriteString(fmt.Sprintf("\n\t tracked : %s", totalTime))
-	buf.WriteString(fmt.Sprintf("\n\t unknown : %s", endTime - totalTime))
+	buf.WriteString(fmt.Sprintf("\n\t unknown : %s", endTime-totalTime))
 
 	fmt.Println(buf.String())
 }
@@ -87,7 +87,7 @@ func timingsMiddleware(next http.Handler) http.Handler {
 			timingsKey,
 			&ctxTimings{
 				Data: make(map[string]*Timing),
-				mx: sync.Mutex{},
+				mx:   sync.Mutex{},
 			})
 		defer logTimings(ctx, time.Now())
 		next.ServeHTTP(w, r.WithContext(ctx))

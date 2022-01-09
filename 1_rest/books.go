@@ -4,25 +4,25 @@ import "sync"
 
 type BookInput struct {
 	Title string `json:"title"`
-	Price int `json:"price"`
+	Price int    `json:"price"`
 }
 
 type Book struct {
-	Id int
+	Id    int
 	Title string
 	Price int
 }
 
 type BookStore struct {
-	books []*Book
-	mu *sync.Mutex
+	books  []*Book
+	mu     *sync.Mutex
 	nextId int
 }
 
 func NewBookStore() *BookStore {
 	return &BookStore{
-		books: []*Book{},
-		mu: &sync.Mutex{},
+		books:  []*Book{},
+		mu:     &sync.Mutex{},
 		nextId: 0,
 	}
 }
@@ -31,7 +31,7 @@ func (bs *BookStore) AddBook(book BookInput) (int, error) {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
 	bs.books = append(bs.books, &Book{
-		Id: bs.nextId,
+		Id:    bs.nextId,
 		Title: book.Title,
 		Price: book.Price,
 	})

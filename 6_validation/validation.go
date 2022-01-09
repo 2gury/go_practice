@@ -9,8 +9,8 @@ import (
 )
 
 type SendMessage struct {
-	Id int `valid:",optional"`
-	Name string `schema:"from" valid:"email"`
+	Id      int    `valid:",optional"`
+	Name    string `schema:"from" valid:"email"`
 	Message string `valid:"message,required"`
 }
 
@@ -62,5 +62,5 @@ func init() {
 			}
 			return true
 		}),
-		)
+	)
 }

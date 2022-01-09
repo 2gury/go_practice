@@ -18,8 +18,8 @@ func mainPage(w http.ResponseWriter, r *http.Request) {
 
 func loginPage(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{
-		Name: "session_id",
-		Value: "username",
+		Name:    "session_id",
+		Value:   "username",
 		Expires: time.Now().Add(time.Hour),
 	}
 	http.SetCookie(w, &cookie)
@@ -46,7 +46,7 @@ func panicPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func adminAuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("adminAuthMiddleware")
 		_, err := r.Cookie("session_id")
 		if err != nil {
@@ -59,7 +59,7 @@ func adminAuthMiddleware(next http.Handler) http.Handler {
 }
 
 func panicCoverMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			fmt.Println("panicCoverMiddleware")
 			if err := recover(); err != nil {
@@ -73,7 +73,7 @@ func panicCoverMiddleware(next http.Handler) http.Handler {
 }
 
 func accessLogMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("accessLogMiddleware")
 		start := time.Now()
 		next.ServeHTTP(w, r)
