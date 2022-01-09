@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"go_practice/8_clean_arch/internal/models"
 	"go_practice/8_clean_arch/internal/product"
+	"go_practice/8_clean_arch/tools/response"
 	"net/http"
 	"strconv"
 )
@@ -32,7 +33,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "{Error while get product}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{}{
+	body := response.Body{
 		"body": products,
 	}
 	json.NewEncoder(w).Encode(body)
@@ -58,7 +59,7 @@ func (h *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "{No product with this id}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{}{
+	body := response.Body{
 		"body": product,
 	}
 	json.NewEncoder(w).Encode(body)
@@ -72,7 +73,7 @@ func (h *ProductHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "{Error while add product}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{}{
+	body := response.Body{
 		"id": id,
 	}
 	json.NewEncoder(w).Encode(body)
@@ -96,7 +97,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "{Error while update product}", http.StatusInternalServerError)
 		return
 	}
-	body := map[string]interface{}{
+	body := response.Body{
 		"updated_elements": numUpdated,
 	}
 	json.NewEncoder(w).Encode(body)

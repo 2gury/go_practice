@@ -6,3 +6,4 @@ type Special struct {
 	Slogan    string `json:"slogan"`
 	Discount  int    `json:"discount"`
 }
+
