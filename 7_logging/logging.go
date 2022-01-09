@@ -12,8 +12,8 @@ import (
 )
 
 type AccessLogger struct {
-	StdLogger *log.Logger
-	ZapLogger *zap.SugaredLogger
+	StdLogger    *log.Logger
+	ZapLogger    *zap.SugaredLogger
 	LogrusLogger *logrus.Entry
 }
 
@@ -21,7 +21,7 @@ func RootPage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello, World!"))
 }
 
-func (l *AccessLogger)accessLogMiddleware(next http.Handler) http.Handler {
+func (l *AccessLogger) accessLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		logger := r.FormValue("log")
@@ -37,9 +37,9 @@ func (l *AccessLogger)accessLogMiddleware(next http.Handler) http.Handler {
 				r.Method, r.RemoteAddr, r.URL.Path, time.Since(start))
 		case "logrus":
 			l.LogrusLogger.WithFields(logrus.Fields{
-			"method": r.Method,
-			"remote_addr": r.RemoteAddr,
-			"work_time": time.Since(start),
+				"method":      r.Method,
+				"remote_addr": r.RemoteAddr,
+				"work_time":   time.Since(start),
 			}).Info(r.URL.Path)
 		case "zap":
 			l.ZapLogger.Info(r.URL.Path,
@@ -66,8 +66,8 @@ func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{DisableColors: false})
 	logrus.WithFields(logrus.Fields{
 		"logger": "logrus",
-		"host": host,
-		"port": port,
+		"host":   host,
+		"port":   port,
 	}).Info("starting server")
 
 	logger := AccessLogger{}
@@ -77,7 +77,7 @@ func main() {
 		zap.String("logger", "ZAP"),
 	)
 	logger.LogrusLogger = logrus.WithFields(logrus.Fields{
-		"mode": "[access_log]",
+		"mode":   "[access_log]",
 		"logger": "LOGRUS",
 	})
 	logrus.SetFormatter(&logrus.JSONFormatter{})

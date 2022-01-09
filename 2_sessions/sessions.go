@@ -26,13 +26,13 @@ type UserInput struct {
 }
 
 type User struct {
-	Id int `json:"id"`
+	Id       int    `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 type Handler struct {
-	users map[string]User
+	users    map[string]User
 	sessions map[string]int
 }
 
@@ -51,8 +51,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	SID := RandStringRunes(32)
 	cookie := http.Cookie{
-		Name: "user_id",
-		Value: SID,
+		Name:    "user_id",
+		Value:   SID,
 		Expires: time.Now().Add(time.Hour),
 	}
 	h.sessions[SID] = user.Id
@@ -93,7 +93,7 @@ func main() {
 	h := Handler{
 		users: map[string]User{
 			"logog": {
-				Id: 0,
+				Id:       0,
 				Username: "logog",
 				Password: "123456",
 			},

@@ -9,8 +9,8 @@ import (
 )
 
 type ResourceError struct {
-	URL string
-	Err error
+	URL  string
+	Err  error
 	Code int
 }
 
@@ -51,8 +51,8 @@ func getRemoteResourceOwnError() error {
 	_, err := client.Get(url)
 	if err != nil {
 		return &ResourceError{
-			URL: url,
-			Err: err,
+			URL:  url,
+			Err:  err,
 			Code: http.StatusInternalServerError,
 		}
 	}
