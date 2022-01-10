@@ -30,39 +30,60 @@ func (h *ProductHandler) Configure(m *mux.Router) {
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.u.List()
 	if err != nil {
-		http.Error(w, "{Error while get product}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusOK,
+			Error: "{Error while get product}",
+		})
 		return
 	}
-	body := response.Body{
-		"body": products,
-	}
-	json.NewEncoder(w).Encode(body)
+
+	json.NewEncoder(w).Encode(response.Response{
+		Code: http.StatusOK,
+		Body: &response.Body{
+			"products": products,
+		},
+	})
 }
 
 func (h *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
-		http.Error(w, "{Error when get product id}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{Error when get product id}",
+		})
 		return
 	}
 	intProductId, err := strconv.Atoi(productId)
 	if err != nil {
-		http.Error(w, "{Error while get product by id}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{Error while get product by id}",
+		})
 		return
 	}
 	product, err := h.u.GetById(uint64(intProductId))
 	if err != nil {
-		http.Error(w, "{Error while get product by id}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{Error while get product by id}",
+		})
 		return
 	}
 	if product == nil {
-		http.Error(w, "{No product with this id}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{No product with this id}",
+		})
 		return
 	}
-	body := response.Body{
-		"body": product,
-	}
-	json.NewEncoder(w).Encode(body)
+
+	json.NewEncoder(w).Encode(response.Response{
+		Code: http.StatusOK,
+		Body: &response.Body{
+			"product": product,
+		},
+	})
 }
 
 func (h *ProductHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
@@ -70,36 +91,52 @@ func (h *ProductHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&product)
 	id, err := h.u.Create(product)
 	if err != nil {
-		http.Error(w, "{Error while add product}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{Error while add product}",
+		})
 		return
 	}
-	body := response.Body{
-		"id": id,
-	}
-	json.NewEncoder(w).Encode(body)
+	json.NewEncoder(w).Encode(response.Response{
+		Code: http.StatusOK,
+		Body: &response.Body{
+			"id": id,
+		},
+	})
 }
 
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
-		http.Error(w, "{Error when get product id}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{Error when get product id}",
+		})
 		return
 	}
 	intProductId, err := strconv.Atoi(productId)
 	if err != nil {
-		http.Error(w, "{Error while get product by id}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{Error while get product by id}",
+		})
 		return
 	}
 	var product models.ProductInput
 	json.NewDecoder(r.Body).Decode(&product)
 	numUpdated, err := h.u.UpdateById(uint64(intProductId), product)
 	if err != nil {
-		http.Error(w, "{Error while update product}", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response.Response{
+			Code: http.StatusBadRequest,
+			Error: "{Error while update product}",
+		})
 		return
 	}
-	body := response.Body{
-		"updated_elements": numUpdated,
-	}
-	json.NewEncoder(w).Encode(body)
+	json.NewEncoder(w).Encode(response.Response{
+		Code: http.StatusOK,
+		Body: &response.Body{
+			"updated_elements": numUpdated,
+		},
+	})
 }
 
