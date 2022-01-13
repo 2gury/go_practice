@@ -5,8 +5,3 @@ type Product struct {
 	Title string `json:"title"`
 	Price int    `json:"price"`
 }
-
-type ProductInput struct {
-	Title string `json:"title"`
-	Price int    `json:"price"`
-}

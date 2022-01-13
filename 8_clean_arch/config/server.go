@@ -1,4 +1,4 @@
-package clean_arch
+package config
 
 import (
 	"context"

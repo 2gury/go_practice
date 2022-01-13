@@ -87,7 +87,7 @@ func (h *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *ProductHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
-	var product models.ProductInput
+	var product models.Product
 	json.NewDecoder(r.Body).Decode(&product)
 	id, err := h.u.Create(product)
 	if err != nil {
@@ -122,7 +122,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	var product models.ProductInput
+	var product models.Product
 	json.NewDecoder(r.Body).Decode(&product)
 	numUpdated, err := h.u.UpdateById(uint64(intProductId), product)
 	if err != nil {

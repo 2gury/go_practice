@@ -2,7 +2,7 @@ package main
 
 import (
 	mux2 "github.com/gorilla/mux"
-	clean_arch "go_practice/8_clean_arch"
+	"go_practice/8_clean_arch/config"
 	"go_practice/8_clean_arch/internal/product/delivery"
 	repository "go_practice/8_clean_arch/internal/product/repository"
 	"go_practice/8_clean_arch/internal/product/usecases"
@@ -23,8 +23,6 @@ func main() {
 	mux := mux2.NewRouter()
 	productHandler.Configure(mux)
 
-	srv := clean_arch.NewServer("8080", mux)
-	if err := srv.Run(); err != nil {
-		log.Printf("Error while launch server: %s", err)
-	}
+	srv := config.NewServer("8080", mux)
+	log.Fatal(srv.Run())
 }

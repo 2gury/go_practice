@@ -6,7 +6,7 @@ import (
 
 type ProductUsecase interface {
 	List() ([]*models.Product, error)
-	Create(product models.ProductInput) (uint64, error)
+	Create(product models.Product) (uint64, error)
 	GetById(id uint64) (*models.Product, error)
-	UpdateById(productId uint64, updatedProduct models.ProductInput) (int, error)
+	UpdateById(productId uint64, updatedProduct models.Product) (int, error)
 }

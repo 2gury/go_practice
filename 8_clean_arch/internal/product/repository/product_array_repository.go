@@ -32,10 +32,7 @@ func (r *ProductArrayRepository) SelectById(id uint64) (*models.Product, error) 
 	return nil, nil
 }
 
-func (r *ProductArrayRepository) Insert(product models.ProductInput) (uint64, error) {
-	if product.Price <= 0 || product.Title == "" {
-		return 0, errors.New("Error when add product. Price should be greater than 0")
-	}
+func (r *ProductArrayRepository) Insert(product models.Product) (uint64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	var maxId uint64 = 0
@@ -44,7 +41,9 @@ func (r *ProductArrayRepository) Insert(product models.ProductInput) (uint64, er
 			maxId = uint64(i)
 		}
 	}
-	maxId++
+	if len(r.Products) != 0 {
+		maxId++
+	}
 	r.Products = append(r.Products, &models.Product{
 		Id:    maxId,
 		Title: product.Title,
@@ -53,10 +52,7 @@ func (r *ProductArrayRepository) Insert(product models.ProductInput) (uint64, er
 	return maxId, nil
 }
 
-func (r *ProductArrayRepository) UpdateById(productId uint64, updatedProduct models.ProductInput) (int, error) {
-	if updatedProduct.Price <= 0 || updatedProduct.Title == "" {
-		return 0, errors.New("Error when add product. Price should be greater than 0")
-	}
+func (r *ProductArrayRepository) UpdateById(productId uint64, updatedProduct models.Product) (int, error) {
 	product, err := r.SelectById(productId)
 	if product == nil {
 		return 0, errors.New("Error when add product. No product with this id")
