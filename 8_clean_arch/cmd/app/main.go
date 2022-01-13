@@ -10,12 +10,6 @@ import (
 )
 
 func main() {
-	//data := repository.NewLocalRepository()
-	//
-	//rep := repository.NewRepository(data)
-	//svc := service.NewService(rep)
-	//hnd := handler.NewHandler(svc)
-
 	productRepository := repository.NewProductArrayRepository()
 	productUsecase := usecases.NewProductUsecase(productRepository)
 	productHandler := delivery.NewProductHandler(productUsecase)
