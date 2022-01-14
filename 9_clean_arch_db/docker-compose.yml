@@ -1,0 +1,14 @@
+version: '3'
+
+# docker rm $(docker ps -a -q) && docker volume prune -f
+
+services:
+  postgres:
+    image: postgres:13.2
+    environment:
+      POSTGRES_PASSWORD: love
+      POSTGRES_DB: golang
+    ports:
+      - '5432:5432'
+    volumes:
+      - './_postgres/:/docker-entrypoint-initdb.d/'
