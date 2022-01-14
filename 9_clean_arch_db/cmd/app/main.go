@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	mux2 "github.com/gorilla/mux"
 	"go_practice/8_clean_arch/config"
 	"go_practice/8_clean_arch/internal/product/delivery"
@@ -12,7 +11,12 @@ import (
 
 func main() {
 	confg, _ := config.LoadConfig("./config.json")
-	fmt.Println(confg)
+	dbConnection, err := confg.Database.GetPostgresDbConnection()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer dbConnection.Close()
+
 	productRepository := repository.NewProductArrayRepository()
 	productUsecase := usecases.NewProductUsecase(productRepository)
 	productHandler := delivery.NewProductHandler(productUsecase)

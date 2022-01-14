@@ -6,8 +6,8 @@ services:
   postgres:
     image: postgres:13.2
     environment:
-      POSTGRES_PASSWORD: love
-      POSTGRES_DB: golang
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products
     ports:
       - '5432:5432'
     volumes:
