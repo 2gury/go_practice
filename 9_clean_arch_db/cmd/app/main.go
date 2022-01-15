@@ -17,7 +17,7 @@ func main() {
 	}
 	defer dbConnection.Close()
 
-	productRepository := repository.NewProductArrayRepository()
+	productRepository := repository.NewProductPgRepository(dbConnection)
 	productUsecase := usecases.NewProductUsecase(productRepository)
 	productHandler := delivery.NewProductHandler(productUsecase)
 

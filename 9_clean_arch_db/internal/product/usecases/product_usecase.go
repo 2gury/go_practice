@@ -35,3 +35,7 @@ func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Prod
 	}
 	return u.r.UpdateById(productId, updatedProduct)
 }
+
+func (u *ProductUsecase) DeleteById(id uint64) (int, error) {
+	return u.r.DeleteById(id)
+}
