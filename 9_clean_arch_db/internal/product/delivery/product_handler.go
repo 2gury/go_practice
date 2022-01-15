@@ -32,7 +32,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.u.List()
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusOK,
+			Code:  http.StatusOK,
 			Error: "{Error while get product}",
 		})
 		return
@@ -50,7 +50,7 @@ func (h *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) 
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error when get product id}",
 		})
 		return
@@ -58,7 +58,7 @@ func (h *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) 
 	intProductId, err := strconv.Atoi(productId)
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error while get product by id}",
 		})
 		return
@@ -66,14 +66,14 @@ func (h *ProductHandler) GetProductById(w http.ResponseWriter, r *http.Request) 
 	product, err := h.u.GetById(uint64(intProductId))
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error while get product by id}",
 		})
 		return
 	}
 	if product == nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{No product with this id}",
 		})
 		return
@@ -93,7 +93,7 @@ func (h *ProductHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := h.u.Create(product)
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error while add product}",
 		})
 		return
@@ -110,7 +110,7 @@ func (h *ProductHandler) UpdateProductById(w http.ResponseWriter, r *http.Reques
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error when get product id}",
 		})
 		return
@@ -118,7 +118,7 @@ func (h *ProductHandler) UpdateProductById(w http.ResponseWriter, r *http.Reques
 	intProductId, err := strconv.Atoi(productId)
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error while get product by id}",
 		})
 		return
@@ -128,7 +128,7 @@ func (h *ProductHandler) UpdateProductById(w http.ResponseWriter, r *http.Reques
 	numUpdated, err := h.u.UpdateById(uint64(intProductId), product)
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error while update product}",
 		})
 		return
@@ -145,7 +145,7 @@ func (h *ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Reques
 	productId, ok := mux.Vars(r)["id"]
 	if !ok {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error when get product id}",
 		})
 		return
@@ -153,7 +153,7 @@ func (h *ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Reques
 	intProductId, err := strconv.Atoi(productId)
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error while get product by id}",
 		})
 		return
@@ -161,7 +161,7 @@ func (h *ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Reques
 	numDeleted, err := h.u.DeleteById(uint64(intProductId))
 	if err != nil {
 		json.NewEncoder(w).Encode(response.Response{
-			Code: http.StatusBadRequest,
+			Code:  http.StatusBadRequest,
 			Error: "{Error while delete product by id}",
 		})
 		return
@@ -173,4 +173,3 @@ func (h *ProductHandler) DeleteProductById(w http.ResponseWriter, r *http.Reques
 		},
 	})
 }
-

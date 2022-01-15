@@ -28,4 +28,3 @@ func (s *HTTPServer) Run() error {
 func (s *HTTPServer) Shutdown(ctx context.Context) error {
 	return s.Server.Shutdown(ctx)
 }
-

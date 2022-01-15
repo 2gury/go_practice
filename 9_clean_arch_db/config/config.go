@@ -4,17 +4,17 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	_ "github.com/jackc/pgx/stdlib"
 	"os"
 	"path/filepath"
-	_ "github.com/jackc/pgx/stdlib"
 )
 
 type Database struct {
-	User string     `json:"user"`
+	User     string `json:"user"`
 	Password string `json:"password"`
-	Name string     `json:"name"`
-	Host string     `json:"host"`
-	Port int        `json:"port"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
 }
 
 type Config struct {
@@ -50,4 +50,3 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	return config, nil
 }
-
