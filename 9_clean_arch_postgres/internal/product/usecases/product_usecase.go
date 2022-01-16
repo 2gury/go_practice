@@ -7,35 +7,35 @@ import (
 )
 
 type ProductUsecase struct {
-	r product.ProductRepository
+	productRep product.ProductRepository
 }
 
 func NewProductUsecase(rep product.ProductRepository) product.ProductUsecase {
 	return &ProductUsecase{
-		r: rep,
+		productRep: rep,
 	}
 }
 
 func (u *ProductUsecase) List() ([]*models.Product, error) {
-	return u.r.SelectAll()
+	return u.productRep.SelectAll()
 }
 
 func (u *ProductUsecase) Create(product models.Product) (uint64, error) {
 	if product.Price <= 0 || product.Title == "" {
 		return 0, errors.New("Error when add product. Price should be greater than 0")
 	}
-	return u.r.Insert(product)
+	return u.productRep.Insert(product)
 }
 func (u *ProductUsecase) GetById(id uint64) (*models.Product, error) {
-	return u.r.SelectById(id)
+	return u.productRep.SelectById(id)
 }
-func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Product) (int, error) {
+func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Product) (bool, error) {
 	if updatedProduct.Price <= 0 || updatedProduct.Title == "" {
-		return 0, errors.New("Error when add product. Price should be greater than 0")
+		return false, errors.New("Error when add product. Price should be greater than 0")
 	}
-	return u.r.UpdateById(productId, updatedProduct)
+	return u.productRep.UpdateById(productId, updatedProduct)
 }
 
-func (u *ProductUsecase) DeleteById(id uint64) (int, error) {
-	return u.r.DeleteById(id)
+func (u *ProductUsecase) DeleteById(id uint64) (bool, error) {
+	return u.productRep.DeleteById(id)
 }

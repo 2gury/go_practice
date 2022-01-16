@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 )
@@ -22,6 +23,7 @@ func NewServer(port string, handler http.Handler) *HTTPServer {
 }
 
 func (s *HTTPServer) Run() error {
+	log.Printf("starting server at port%s", s.Server.Addr)
 	return s.Server.ListenAndServe()
 }
 

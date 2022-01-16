@@ -45,7 +45,8 @@ func (r *ProductPgRepository) SelectAll() ([]*models.Product, error) {
 func (r *ProductPgRepository) SelectById(id uint64) (*models.Product, error) {
 	product := &models.Product{}
 	err := r.dbConn.QueryRow(
-		`SELECT id, title, price FROM products WHERE id=$1`, id).
+		`SELECT id, title, price FROM products 
+               WHERE id=$1`, id).
 		Scan(&product.Id, &product.Title, &product.Price)
 	if err != nil {
 		return nil, err
@@ -59,7 +60,8 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 		return 0, err
 	}
 	var lastId int64
-	err = tx.QueryRow(`INSERT INTO products(title, price) VALUES($1, $2) RETURNING id`,
+	err = tx.QueryRow(`INSERT INTO products(title, price) 
+                            VALUES($1, $2) RETURNING id`,
 		product.Title, product.Price).Scan(&lastId)
 	if err != nil {
 		if rollBackError := tx.Rollback(); rollBackError != nil {
@@ -73,49 +75,64 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 	return uint64(lastId), nil
 }
 
-func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models.Product) (int, error) {
+func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models.Product) (bool, error) {
+	if ok := r.IsProductExist(productId); !ok {
+		return false, nil
+	}
+
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
-		return 0, err
+		return false, err
 	}
-	result, err := tx.Exec(
+	_, err = tx.Exec(
 		`UPDATE products
-				SET title=$1, price=$2
-				WHERE id=$3 `,
+			   SET title=$1, price=$2
+			   WHERE id=$3 `,
 		updatedProduct.Title, updatedProduct.Price, productId)
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			log.Fatal(rollbackErr)
 		}
-		return 0, nil
+		return false, nil
 	}
 	if err := tx.Commit(); err != nil {
-		return 0, nil
+		return false, nil
 	}
-	countAffectetdRows, err := result.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-	return int(countAffectetdRows), nil
+	return true, nil
 }
 
-func (r *ProductPgRepository) DeleteById(id uint64) (int, error) {
+func (r *ProductPgRepository) DeleteById(id uint64) (bool, error) {
+	if ok := r.IsProductExist(id); !ok {
+		return false, nil
+	}
+
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
-		return 0, err
+		return false, err
 	}
-	result, err := tx.Exec(
+	_, err = tx.Exec(
 		`DELETE FROM products
-				WHERE id=$1 `, id)
+			   WHERE id=$1 `, id)
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			log.Fatal(rollbackErr)
 		}
-		return 0, nil
+		return false, nil
 	}
 	if err := tx.Commit(); err != nil {
-		return 0, err
+		return false, err
 	}
-	countAffectedRows, err := result.RowsAffected()
-	return int(countAffectedRows), nil
+	return true, nil
+}
+
+func (r *ProductPgRepository) IsProductExist(productId uint64) (bool) {
+	var id int
+	err := r.dbConn.QueryRow(
+		`SELECT id FROM products 
+			   WHERE id=$1`, productId).
+		Scan(id)
+	if err == sql.ErrNoRows {
+		return false
+	}
+	return true
 }

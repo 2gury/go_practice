@@ -10,7 +10,10 @@ import (
 )
 
 func main() {
-	confg, _ := config.LoadConfig("./config.json")
+	confg, err := config.LoadConfig("./config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
 	dbConnection, err := confg.Database.GetPostgresDbConnection()
 	if err != nil {
 		log.Fatal(err)
