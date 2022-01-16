@@ -76,7 +76,11 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 }
 
 func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models.Product) (bool, error) {
-	if ok := r.IsProductExist(productId); !ok {
+	isExist, err := r.IsProductExist(productId)
+	if err != nil {
+		return false, err
+	}
+	if !isExist {
 		return false, nil
 	}
 
@@ -102,7 +106,11 @@ func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models
 }
 
 func (r *ProductPgRepository) DeleteById(id uint64) (bool, error) {
-	if ok := r.IsProductExist(id); !ok {
+	isExist, err := r.IsProductExist(id)
+	if err != nil {
+		return false, err
+	}
+	if !isExist {
 		return false, nil
 	}
 
@@ -125,14 +133,16 @@ func (r *ProductPgRepository) DeleteById(id uint64) (bool, error) {
 	return true, nil
 }
 
-func (r *ProductPgRepository) IsProductExist(productId uint64) (bool) {
-	var id int
+func (r *ProductPgRepository) IsProductExist(productId uint64) (bool, error) {
+	var id int64
 	err := r.dbConn.QueryRow(
 		`SELECT id FROM products 
-			   WHERE id=$1`, productId).
-		Scan(id)
-	if err == sql.ErrNoRows {
-		return false
+			   WHERE id=$1`, productId).Scan(&id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
 	}
-	return true
+	return true, nil
 }
