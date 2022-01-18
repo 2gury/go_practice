@@ -33,7 +33,16 @@ func (r *ProductMongoRepository) SelectAll() ([]*models.Product, error) {
 }
 
 func (r *ProductMongoRepository) SelectById(id string) (*models.Product, error) {
-	return nil, nil
+	hexId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	product := &models.Product{}
+	err = r.coll.FindOne(context.Background(), bson.D{{"_id", hexId}}).Decode(product)
+	if err != nil {
+		return nil, err
+	}
+	return product, nil
 }
 
 func (r *ProductMongoRepository) Insert(product *models.Product) (string, error) {
@@ -41,15 +50,27 @@ func (r *ProductMongoRepository) Insert(product *models.Product) (string, error)
 	product.Id = id
 	_, err := r.coll.InsertOne(context.Background(), product)
 	if err != nil {
-		return "", err
+		return "", nil
 	}
 	return id.Hex(), nil
 }
 
 func (r *ProductMongoRepository) Update(product *models.Product) (int64, error) {
-	return 0, nil
+	_, err := r.coll.ReplaceOne(context.Background(), bson.M{"_id": product.Id}, product)
+	if err != nil {
+		return 0, err
+	}
+	return 1, nil
 }
 
 func (r *ProductMongoRepository) DeleteById(id string) (int64, error) {
-	return 0, nil
+	hexId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return 0, err
+	}
+	_, err = r.coll.DeleteOne(context.Background(), bson.M{"_id": hexId})
+	if err != nil {
+		return 0, err
+	}
+	return 1, nil
 }
