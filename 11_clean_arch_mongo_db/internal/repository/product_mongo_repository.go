@@ -29,56 +29,27 @@ func (r *ProductMongoRepository) SelectAll() ([]*models.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return products, nil
 }
 
 func (r *ProductMongoRepository) SelectById(id string) (*models.Product, error) {
-	product := &models.Product{}
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-	err = r.coll.FindOne(context.Background(), bson.M{"_id": oid}).Decode(&product)
-	if err != nil {
-		return nil, err
-	}
-	return product, nil
+	return nil, nil
 }
 
 func (r *ProductMongoRepository) Insert(product *models.Product) (string, error) {
-	product.Id = primitive.NewObjectID()
+	id := primitive.NewObjectID()
+	product.Id = id
 	_, err := r.coll.InsertOne(context.Background(), product)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
-	return product.Id.Hex(), nil
+	return id.Hex(), nil
 }
 
 func (r *ProductMongoRepository) Update(product *models.Product) (int64, error) {
-	res, err := r.coll.UpdateOne(context.Background(),
-		bson.M{"_id": product.Id},
-		bson.M{
-			"$set": bson.M{
-				"title":       product.Title,
-				"description": product.Description,
-			},
-		},
-	)
-	if err != nil {
-		return 0, err
-	}
-	return res.ModifiedCount, nil
+	return 0, nil
 }
 
 func (r *ProductMongoRepository) DeleteById(id string) (int64, error) {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return 0, err
-	}
-	res, err := r.coll.DeleteOne(context.Background(), bson.M{"_id": oid})
-	if err != nil {
-		return 0, err
-	}
-	return res.DeletedCount, nil
+	return 0, nil
 }

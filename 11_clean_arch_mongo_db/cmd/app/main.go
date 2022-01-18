@@ -15,29 +15,29 @@ import (
 )
 
 func getMongoCollection() (*mongo.Client, error) {
-	cfg := "mongodb://localhost:27017"
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 10)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		return nil, err
 	}
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second * 10)
+	defer cancel()
 	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		return nil, err
-	}
 	return client, nil
 }
 
 func main() {
 	mux := mux.NewRouter()
 
-	conn, err := getMongoCollection()
+	client, err := getMongoCollection()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
 
-	rep := repository.NewProductMongoRepository(conn.Database("golang").Collection("products"))
+	coll := client.Database("golang").Collection("products")
+
+	rep := repository.NewProductMongoRepository(coll)
 	use := usecase.NewProductUsecase(rep)
 	hnd := delivery.NewProductHandler(use)
 	hnd.Configure(mux)
