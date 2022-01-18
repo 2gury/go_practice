@@ -49,6 +49,10 @@ func (h *ProductHandler) GetProducts() http.HandlerFunc {
 }
 
 func (h *ProductHandler) GetProductById() http.HandlerFunc {
+	type Query struct {
+		Id int `json:"id" valid:"int,required"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		productId, _ := mux.Vars(r)["id"]
 		ok := govalidator.IsInt(productId)

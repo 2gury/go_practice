@@ -41,7 +41,7 @@ var Errors =  map[consts.ErrorCode]*Error{
 		UserMessage: "Неверный формат запроса",
 	},
 	consts.CodeInternalError: {
-		HttpCode: http.StatusBadRequest,
+		HttpCode: http.StatusInternalServerError,
 		Message: "Sorry, can't handle request",
 		UserMessage: "Что-то пошло не так",
 	},
