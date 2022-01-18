@@ -49,6 +49,9 @@ func (r *ProductPgRepository) SelectById(id uint64) (*models.Product, error) {
                WHERE id=$1`, id).
 		Scan(&product.Id, &product.Title, &product.Price)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return product, nil
@@ -76,14 +79,6 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 }
 
 func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models.Product) (bool, error) {
-	isExist, err := r.IsProductExist(productId)
-	if err != nil {
-		return false, err
-	}
-	if !isExist {
-		return false, nil
-	}
-
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
 		return false, err
@@ -106,14 +101,6 @@ func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models
 }
 
 func (r *ProductPgRepository) DeleteById(id uint64) (bool, error) {
-	isExist, err := r.IsProductExist(id)
-	if err != nil {
-		return false, err
-	}
-	if !isExist {
-		return false, nil
-	}
-
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
 		return false, err
@@ -128,20 +115,6 @@ func (r *ProductPgRepository) DeleteById(id uint64) (bool, error) {
 		return false, nil
 	}
 	if err := tx.Commit(); err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func (r *ProductPgRepository) IsProductExist(productId uint64) (bool, error) {
-	var id int64
-	err := r.dbConn.QueryRow(
-		`SELECT id FROM products 
-			   WHERE id=$1`, productId).Scan(&id)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return false, nil
-		}
 		return false, err
 	}
 	return true, nil
