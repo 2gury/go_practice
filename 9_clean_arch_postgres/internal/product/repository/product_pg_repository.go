@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"go_practice/8_clean_arch/internal/models"
-	"go_practice/8_clean_arch/internal/product"
+	"go_practice/9_clean_arch_db/internal/models"
+	"go_practice/9_clean_arch_db/internal/product"
 	"log"
 )
 
@@ -43,18 +43,15 @@ func (r *ProductPgRepository) SelectAll() ([]*models.Product, error) {
 }
 
 func (r *ProductPgRepository) SelectById(id uint64) (*models.Product, error) {
-	product := &models.Product{}
+	prod := &models.Product{}
 	err := r.dbConn.QueryRow(
 		`SELECT id, title, price FROM products 
                WHERE id=$1`, id).
-		Scan(&product.Id, &product.Title, &product.Price)
+		Scan(&prod.Id, &prod.Title, &prod.Price)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
 		return nil, err
 	}
-	return product, nil
+	return prod, nil
 }
 
 func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
@@ -78,10 +75,10 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 	return uint64(lastId), nil
 }
 
-func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models.Product) (bool, error) {
+func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models.Product) error {
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
-		return false, err
+		return err
 	}
 	_, err = tx.Exec(
 		`UPDATE products
@@ -92,18 +89,18 @@ func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			log.Fatal(rollbackErr)
 		}
-		return false, nil
+		return nil
 	}
 	if err := tx.Commit(); err != nil {
-		return false, nil
+		return nil
 	}
-	return true, nil
+	return nil
 }
 
-func (r *ProductPgRepository) DeleteById(id uint64) (bool, error) {
+func (r *ProductPgRepository) DeleteById(id uint64) error {
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
-		return false, err
+		return err
 	}
 	_, err = tx.Exec(
 		`DELETE FROM products
@@ -112,10 +109,10 @@ func (r *ProductPgRepository) DeleteById(id uint64) (bool, error) {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			log.Fatal(rollbackErr)
 		}
-		return false, nil
+		return nil
 	}
 	if err := tx.Commit(); err != nil {
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }

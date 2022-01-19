@@ -1,6 +1,6 @@
 package response
 
-import "go_practice/8_clean_arch/internal/helpers/errors"
+import "go_practice/9_clean_arch_db/internal/helpers/errors"
 
 type Body map[string]interface{}
 

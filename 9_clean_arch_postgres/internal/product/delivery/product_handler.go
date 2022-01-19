@@ -2,14 +2,13 @@ package delivery
 
 import (
 	"encoding/json"
-	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
-	"go_practice/8_clean_arch/internal/consts"
-	"go_practice/8_clean_arch/internal/helpers/errors"
-	"go_practice/8_clean_arch/internal/models"
-	"go_practice/8_clean_arch/internal/product"
-	"go_practice/8_clean_arch/tools/request_reader"
-	"go_practice/8_clean_arch/tools/response"
+	"go_practice/9_clean_arch_db/internal/consts"
+	"go_practice/9_clean_arch_db/internal/helpers/errors"
+	"go_practice/9_clean_arch_db/internal/models"
+	"go_practice/9_clean_arch_db/internal/product"
+	"go_practice/9_clean_arch_db/tools/request_reader"
+	"go_practice/9_clean_arch_db/tools/response"
 	"net/http"
 	"strconv"
 )
@@ -36,7 +35,7 @@ func (h *ProductHandler) GetProducts() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		products, err := h.productUse.List()
 		if err != nil {
-			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+			json.NewEncoder(w).Encode(response.Response{Code: err.HttpCode, Error: err,})
 			return
 		}
 
@@ -49,30 +48,40 @@ func (h *ProductHandler) GetProducts() http.HandlerFunc {
 }
 
 func (h *ProductHandler) GetProductById() http.HandlerFunc {
+	/*
 	type Query struct {
 		Id int `json:"id" valid:"int,required"`
 	}
-
+	*/
 	return func(w http.ResponseWriter, r *http.Request) {
-		productId, _ := mux.Vars(r)["id"]
-		ok := govalidator.IsInt(productId)
+		/*
+		query := &Query{}
+		if err := request_reader.NewQueryReader().Read(query, r.URL.Query()); err != nil {
+			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+			return
+		}
+		if err := request_reader.ValidateStruct(query); err != nil {
+			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+			return
+		}
+		*/
+		productId, ok := mux.Vars(r)["id"]
 		if !ok {
+			err := errors.Get(consts.CodeBadRequest)
+			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+			return
+		}
+		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
 			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
 			return
 		}
-		intProductId, _ := strconv.Atoi(productId)
-		product, err := h.productUse.GetById(uint64(intProductId))
+		product, err := h.productUse.GetById(intProductId)
 		if err != nil {
 			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
 			return
 		}
-		if product == nil {
-			err := errors.Get(consts.CodeProductDoesNotExist)
-			json.NewEncoder(w).Encode(response.Response{Code: err.HttpCode, Error: err,})
-			return
-		}
-
 		json.NewEncoder(w).Encode(response.Response{Code: http.StatusOK,
 			Body: &response.Body{
 				"product": product,
@@ -83,7 +92,7 @@ func (h *ProductHandler) GetProductById() http.HandlerFunc {
 
 func (h *ProductHandler) AddProduct() http.HandlerFunc {
 	type Request struct {
-		Title string `json:"title" valid:",required"`
+		Title string `json:"title" valid:"title,required"`
 		Price int    `json:"price" valid:"int,required"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -112,30 +121,40 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 }
 
 func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
+	type Request struct {
+		Title string `json:"title" valid:"title,required"`
+		Price int    `json:"price" valid:"int,required"`
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		productId, _ := mux.Vars(r)["id"]
-		ok := govalidator.IsInt(productId)
+		productId, ok := mux.Vars(r)["id"]
 		if !ok {
+			err := errors.Get(consts.CodeBadRequest)
+			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+			return
+		}
+		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
 			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
 			return
 		}
-		intProductId, _ := strconv.Atoi(productId)
-		var product models.Product
-		json.NewDecoder(r.Body).Decode(&product)
-		err := request_reader.ValidateStruct(product)
-		if err != nil {
-			json.NewEncoder(w).Encode(response.Response{Code: err.HttpCode, Error: err,})
+		req := &Request{}
+		json.NewDecoder(r.Body).Decode(&req)
+		if err := request_reader.ValidateStruct(req); err != nil {
+			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
 			return
 		}
-		err = h.productUse.UpdateById(uint64(intProductId), product)
-		if err != nil {
+		product := models.Product{
+			Title: req.Title,
+			Price: req.Price,
+		}
+		if err := h.productUse.UpdateById(intProductId, product); err != nil {
 			json.NewEncoder(w).Encode(response.Response{Code: err.HttpCode, Error: err,})
 			return
 		}
 		json.NewEncoder(w).Encode(response.Response{Code: http.StatusOK,
 			Body: &response.Body{
-				"update": true,
+				"updated_elements": true,
 			},
 		})
 	}
@@ -143,16 +162,19 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 
 func (h *ProductHandler) DeleteProductById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		productId, _ := mux.Vars(r)["id"]
-		ok := govalidator.IsInt(productId)
+		productId, ok := mux.Vars(r)["id"]
 		if !ok {
+			err := errors.Get(consts.CodeBadRequest)
+			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+			return
+		}
+		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
 			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
 			return
 		}
-		intProductId, _ := strconv.Atoi(productId)
-		err := h.productUse.DeleteById(uint64(intProductId))
-		if err != nil {
+		if err := h.productUse.DeleteById(intProductId); err != nil {
 			json.NewEncoder(w).Encode(response.Response{Code: err.HttpCode, Error: err,})
 			return
 		}
