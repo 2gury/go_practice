@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"database/sql"
-	errors2 "github.com/pkg/errors"
+	systetmErrors "github.com/pkg/errors"
 	"go_practice/9_clean_arch_db/internal/consts"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
@@ -29,7 +29,7 @@ func (u *ProductUsecase) List() ([]*models.Product, *errors.Error) {
 
 func (u *ProductUsecase) Create(product models.Product) (uint64, *errors.Error) {
 	if product.Price <= 0 || product.Title == "" {
-		return 0, errors.New(consts.CodeBadRequest, errors2.New(
+		return 0, errors.New(consts.CodeBadRequest, systetmErrors.New(
 			"Error when add product. Price should be greater than 0. Title should be not empty"))
 	}
 	id, err := u.productRep.Insert(product)
@@ -50,7 +50,7 @@ func (u *ProductUsecase) GetById(id uint64) (*models.Product, *errors.Error) {
 }
 func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Product) *errors.Error {
 	if updatedProduct.Price <= 0 || updatedProduct.Title == "" {
-		return errors.New(consts.CodeBadRequest, errors2.New(
+		return errors.New(consts.CodeBadRequest, systetmErrors.New(
 			"Error when add product. Price should be greater than 0. Title should be not empty"))
 	}
 	if _, err := u.GetById(productId); err != nil {

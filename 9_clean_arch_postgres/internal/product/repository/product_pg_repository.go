@@ -46,7 +46,7 @@ func (r *ProductPgRepository) SelectById(id uint64) (*models.Product, error) {
 	prod := &models.Product{}
 	err := r.dbConn.QueryRow(
 		`SELECT id, title, price FROM products 
-               WHERE id=$1`, id).
+                WHERE id=$1`, id).
 		Scan(&prod.Id, &prod.Title, &prod.Price)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 	}
 	var lastId int64
 	err = tx.QueryRow(`INSERT INTO products(title, price) 
-                            VALUES($1, $2) RETURNING id`,
+                              VALUES($1, $2) RETURNING id`,
 		product.Title, product.Price).Scan(&lastId)
 	if err != nil {
 		if rollBackError := tx.Rollback(); rollBackError != nil {
@@ -82,8 +82,8 @@ func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models
 	}
 	_, err = tx.Exec(
 		`UPDATE products
-			   SET title=$1, price=$2
-			   WHERE id=$3 `,
+			    SET title=$1, price=$2
+			    WHERE id=$3 `,
 		updatedProduct.Title, updatedProduct.Price, productId)
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
@@ -104,7 +104,7 @@ func (r *ProductPgRepository) DeleteById(id uint64) error {
 	}
 	_, err = tx.Exec(
 		`DELETE FROM products
-			   WHERE id=$1 `, id)
+			    WHERE id=$1 `, id)
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			log.Fatal(rollbackErr)

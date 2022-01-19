@@ -65,12 +65,7 @@ func (h *ProductHandler) GetProductById() http.HandlerFunc {
 			return
 		}
 		*/
-		productId, ok := mux.Vars(r)["id"]
-		if !ok {
-			err := errors.Get(consts.CodeBadRequest)
-			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
-			return
-		}
+		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
@@ -92,7 +87,7 @@ func (h *ProductHandler) GetProductById() http.HandlerFunc {
 
 func (h *ProductHandler) AddProduct() http.HandlerFunc {
 	type Request struct {
-		Title string `json:"title" valid:"title,required"`
+		Title string `json:"title" valid:"stringlength(1|64),required"`
 		Price int    `json:"price" valid:"int,required"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -122,16 +117,11 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 
 func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 	type Request struct {
-		Title string `json:"title" valid:"title,required"`
+		Title string `json:"title" valid:"stringlength(1|64),required"`
 		Price int    `json:"price" valid:"int,required"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		productId, ok := mux.Vars(r)["id"]
-		if !ok {
-			err := errors.Get(consts.CodeBadRequest)
-			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
-			return
-		}
+		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
@@ -162,12 +152,7 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 
 func (h *ProductHandler) DeleteProductById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		productId, ok := mux.Vars(r)["id"]
-		if !ok {
-			err := errors.Get(consts.CodeBadRequest)
-			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
-			return
-		}
+		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
