@@ -26,35 +26,41 @@ func NewSessionManager(conn redis.Conn)  *SessionManager {
 }
 
 func (sm *SessionManager) Create(in *Session) (*SessionId, error) {
-	id := SessionId{RandStringRunes(sessKeyLen)}
-	dataSerialized, _ := json.Marshal(in)
+	id := &SessionId{RandStringRunes(sessKeyLen)}
 	mkey := "sessions:" + id.Id
-	res, err := redis.String(sm.redisConn.Do("SET", mkey, dataSerialized, "EX", 86400))
+	sess, err := json.Marshal(in)
+	if err != nil {
+		return nil, err
+	}
+	res, err := redis.String(sm.redisConn.Do("SET", mkey, sess, "EX", 86400))
 	if err != nil {
 		return nil, err
 	}
 	if res != "OK" {
-		return nil, fmt.Errorf("Redis: result not OK")
+		return nil, fmt.Errorf("redis: not OK")
 	}
-	return &id, nil
+	return id, nil
 }
 
 func (sm *SessionManager) Check(in *SessionId) (*Session, error) {
 	mkey := "sessions:" + in.Id
-	data, err := redis.Bytes(sm.redisConn.Do("GET", mkey))
+	bytes, err := redis.Bytes(sm.redisConn.Do("GET", mkey))
+	session := &Session{}
+	err = json.Unmarshal(bytes, session)
 	if err != nil {
 		return nil, err
 	}
-	sess := &Session{}
-	err = json.Unmarshal(data, sess)
-	if err != nil {
-		return nil, err
-	}
-	return sess, nil
+	return session, nil
 }
 
 func (sm *SessionManager) Delete(in *SessionId) (error) {
 	mkey := "sessions:" + in.Id
-	_, err := redis.Int(sm.redisConn.Do("DEL", mkey))
-	return err
+	res, err := redis.String(sm.redisConn.Do("DEL", mkey))
+	if err != nil {
+		return err
+	}
+	if res != "OK" {
+		return fmt.Errorf("redis: not OK")
+	}
+	return nil
 }
