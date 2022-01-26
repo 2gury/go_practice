@@ -4,6 +4,8 @@
     "password": "postgres",
     "name": "products",
     "host": "localhost",
-    "port": 5432
-  }
+    "port": 5435
+  },
+  "logger": "/Users/egortimonin/go/src/go_practice/9_clean_arch_postgres/logs.log",
+  "log_level": "INFO"
 }

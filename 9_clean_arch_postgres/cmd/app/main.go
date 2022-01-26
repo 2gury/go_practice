@@ -6,6 +6,7 @@ import (
 	"go_practice/9_clean_arch_db/internal/product/delivery"
 	"go_practice/9_clean_arch_db/internal/product/repository"
 	"go_practice/9_clean_arch_db/internal/product/usecases"
+	"go_practice/9_clean_arch_db/tools/logger"
 	"log"
 )
 
@@ -14,6 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	logger.InitLogger(confg.GetLoggerDir(), confg.GetLogLevel())
 	dbConnection, err := confg.Database.GetPostgresDbConnection()
 	if err != nil {
 		log.Fatal(err)

@@ -1,0 +1,5 @@
+2022-01-26T17:47:52.677+0300	[34mINFO[0m	logger/logger.go:60	[[::1]:54156 200 GET /product 5.836392ms]
+2022-01-26T17:47:56.355+0300	[34mINFO[0m	logger/logger.go:60	[[::1]:54158 0 GET /product/1 4.439353ms]
+2022-01-26T17:48:04.313+0300	[34mINFO[0m	logger/logger.go:60	[[::1]:54161 200 POST /product/1 29.270078ms]
+2022-01-26T17:48:17.787+0300	[34mINFO[0m	logger/logger.go:60	[[::1]:54163 200 PUT /product/ 12.341548ms]
+2022-01-26T17:48:20.658+0300	[34mINFO[0m	logger/logger.go:60	[[::1]:54165 200 GET /product 7.863123ms]

@@ -9,6 +9,14 @@ import (
 	"path/filepath"
 )
 
+var logLevels = map[string]int {
+	"DEBUG": 10,
+	"INFO": 20,
+	"WARN": 30,
+	"ERROR": 40,
+	"FATAL": 50,
+}
+
 type Database struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
@@ -19,6 +27,8 @@ type Database struct {
 
 type Config struct {
 	Database Database `json:"database"`
+	LoggerFile string `json:"logger"`
+	LogLevel string `json:"log_level"`
 }
 
 func (d *Database) GetPostgresDbConnection() (*sql.DB, error) {
@@ -49,4 +59,12 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 	return config, nil
+}
+
+func (c *Config) GetLoggerDir() string {
+	return c.LoggerFile
+}
+
+func (c *Config) GetLogLevel() int {
+	return logLevels[c.LogLevel]
 }
