@@ -6,14 +6,14 @@ import (
 )
 
 type Error struct {
-	HttpCode int    `json:"-"`
-	Message  string `json:"message"`
+	HttpCode    int    `json:"-"`
+	Message     string `json:"message"`
 	UserMessage string `json:"user_message"`
 }
 
 var WrongErrorCode = &Error{
-	HttpCode: http.StatusTeapot,
-	Message: "This error code doesn't exist",
+	HttpCode:    http.StatusTeapot,
+	Message:     "This error code doesn't exist",
 	UserMessage: "Технические неполадки. Уже чиним",
 }
 
@@ -34,27 +34,25 @@ func Get(code consts.ErrorCode) *Error {
 	return customErr
 }
 
-var Errors =  map[consts.ErrorCode]*Error{
+var Errors = map[consts.ErrorCode]*Error{
 	consts.CodeBadRequest: {
-		HttpCode: http.StatusBadRequest,
-		Message: "This request format is invalid",
+		HttpCode:    http.StatusBadRequest,
+		Message:     "This request format is invalid",
 		UserMessage: "Неверный формат запроса",
 	},
 	consts.CodeInternalError: {
-		HttpCode: http.StatusInternalServerError,
-		Message: "Sorry, can't handle request",
+		HttpCode:    http.StatusInternalServerError,
+		Message:     "Sorry, can't handle request",
 		UserMessage: "Что-то пошло не так",
 	},
 	consts.CodeProductDoesNotExist: {
-		HttpCode: http.StatusBadRequest,
-		Message: "Product doesn't exist",
+		HttpCode:    http.StatusBadRequest,
+		Message:     "Product doesn't exist",
 		UserMessage: "Такого продукта не существует",
 	},
 	consts.CodeValidateError: {
-		HttpCode: http.StatusBadRequest,
-		Message: "Sorry, can't validate request",
+		HttpCode:    http.StatusBadRequest,
+		Message:     "Sorry, can't validate request",
 		UserMessage: "Неверный формат параметров запроса",
 	},
 }
-
-

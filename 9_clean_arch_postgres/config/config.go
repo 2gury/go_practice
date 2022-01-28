@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 )
 
-var logLevels = map[string]int {
+var logLevels = map[string]int{
 	"DEBUG": 10,
-	"INFO": 20,
-	"WARN": 30,
+	"INFO":  20,
+	"WARN":  30,
 	"ERROR": 40,
 	"FATAL": 50,
 }
@@ -26,9 +26,9 @@ type Database struct {
 }
 
 type Config struct {
-	Database Database `json:"database"`
-	LoggerFile string `json:"logger"`
-	LogLevel string `json:"log_level"`
+	Database   Database `json:"database"`
+	LoggerFile string   `json:"logger"`
+	LogLevel   string   `json:"log_level"`
 }
 
 func (d *Database) GetPostgresDbConnection() (*sql.DB, error) {

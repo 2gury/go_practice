@@ -57,22 +57,22 @@ func (h *ProductHandler) GetProducts() http.HandlerFunc {
 
 func (h *ProductHandler) GetProductById() http.HandlerFunc {
 	/*
-	type Query struct {
-		Id int `json:"id" valid:"int,required"`
-	}
+		type Query struct {
+			Id int `json:"id" valid:"int,required"`
+		}
 	*/
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		/*
-		query := &Query{}
-		if err := request_reader.NewQueryReader().Read(query, r.URL.Query()); err != nil {
-			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
-			return
-		}
-		if err := request_reader.ValidateStruct(query); err != nil {
-			json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
-			return
-		}
+			query := &Query{}
+			if err := request_reader.NewQueryReader().Read(query, r.URL.Query()); err != nil {
+				json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+				return
+			}
+			if err := request_reader.ValidateStruct(query); err != nil {
+				json.NewEncoder(w).Encode(response.Response{Code:  err.HttpCode, Error: err,})
+				return
+			}
 		*/
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
@@ -87,6 +87,7 @@ func (h *ProductHandler) GetProductById() http.HandlerFunc {
 		product, err := h.productUse.GetById(intProductId)
 		if err != nil {
 			w.WriteHeader(err.HttpCode)
+			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
@@ -124,7 +125,7 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(err.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err,})
+			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
 		w.WriteHeader(http.StatusOK)

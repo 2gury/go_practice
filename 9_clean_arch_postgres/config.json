@@ -6,6 +6,6 @@
     "host": "localhost",
     "port": 5435
   },
-  "logger": "/Users/egortimonin/go/src/go_practice/9_clean_arch_postgres/logs.log",
+  "logger": "./logs.log",
   "log_level": "INFO"
 }

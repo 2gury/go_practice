@@ -31,14 +31,14 @@ func PanicCoverMiddleware(next http.Handler) http.Handler {
 
 func AccessLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger.Info(fmt.Sprintf("%s %s %s", r.RemoteAddr, r.Method, r.URL.Path))
 		ctx := r.Context()
 		var code int
 		ctx = context.WithValue(ctx,
 			contextHelper.StatusCode, &code,
 		)
-
 		start := time.Now()
 		next.ServeHTTP(w, r.WithContext(ctx))
-		logger.Info(fmt.Sprintf("%s %d %s %s %s", r.RemoteAddr, code, r.Method, r.URL.Path, time.Since(start)))
+		logger.Info(fmt.Sprintf("Status: %d Work time: %s", code, time.Since(start)))
 	})
 }

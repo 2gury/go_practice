@@ -4,7 +4,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -12,7 +11,7 @@ import (
 var zapLogger *zap.SugaredLogger
 var logFileDesc *os.File
 
-var logLevels = map[int]zapcore.Level {
+var logLevels = map[int]zapcore.Level{
 	10: zap.DebugLevel,
 	20: zap.InfoLevel,
 	30: zap.WarnLevel,
@@ -20,26 +19,26 @@ var logLevels = map[int]zapcore.Level {
 	50: zap.FatalLevel,
 }
 
-func InitLogger(filename string, logLevel int) {
+func InitLogger(filename string, logLevel int) error {
 	if zapLogger != nil {
-		return
+		return nil
 	}
 
 	err := os.MkdirAll(filepath.Dir(filename), 0750)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	logFileDesc, err = os.OpenFile(filepath.Clean(filename), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	logFile := &lumberjack.Logger{
-		Filename: filename,
-		MaxSize: 1,
+		Filename:   filename,
+		MaxSize:    1,
 		MaxBackups: 3,
-		MaxAge: 28,
+		MaxAge:     28,
 	}
 
 	sync := zapcore.WriteSyncer(zapcore.AddSync(logFile))
@@ -54,6 +53,7 @@ func InitLogger(filename string, logLevel int) {
 	logger := zap.New(core, zap.AddCaller())
 
 	zapLogger = logger.Sugar()
+	return nil
 }
 
 func Info(args ...interface{}) {
