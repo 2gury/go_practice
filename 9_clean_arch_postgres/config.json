@@ -4,6 +4,8 @@
     "password": "postgres",
     "name": "products",
     "host": "localhost",
-    "port": 5432
-  }
+    "port": 5435
+  },
+  "logger": "./logs.log",
+  "log_level": "INFO"
 }

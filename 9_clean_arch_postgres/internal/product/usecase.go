@@ -1,8 +1,8 @@
 package product
 
 import (
-	"go_practice/9_clean_arch_db/internal/models"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
+	"go_practice/9_clean_arch_db/internal/models"
 )
 
 type ProductUsecase interface {
