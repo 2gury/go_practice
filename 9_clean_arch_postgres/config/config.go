@@ -25,6 +25,14 @@ type Database struct {
 	Port     int    `json:"port"`
 }
 
+type SessionDatabase struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+}
+
 type Config struct {
 	Database   Database `json:"database"`
 	LoggerFile string   `json:"logger"`

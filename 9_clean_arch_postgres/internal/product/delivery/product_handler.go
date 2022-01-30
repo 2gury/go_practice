@@ -26,11 +26,11 @@ func NewProductHandler(use product.ProductUsecase) *ProductHandler {
 }
 
 func (h *ProductHandler) Configure(m *mux.Router) {
-	m.HandleFunc("/product", h.GetProducts()).Methods("GET")
-	m.HandleFunc("/product/", h.AddProduct()).Methods("PUT")
-	m.HandleFunc("/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
-	m.HandleFunc("/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE")
-	m.HandleFunc("/product/{id:[0-9]+}", h.GetProductById()).Methods("GET")
+	m.HandleFunc("/api/v1/product", h.GetProducts()).Methods("GET")
+	m.HandleFunc("/api/v1/product/", h.AddProduct()).Methods("PUT")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.GetProductById()).Methods("GET")
 	m.Use(mwares.PanicCoverMiddleware)
 	m.Use(mwares.AccessLogMiddleware)
 }

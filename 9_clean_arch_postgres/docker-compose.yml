@@ -10,3 +10,8 @@ services:
       - '5435:5432'
     volumes:
       - './_postgres/:/docker-entrypoint-initdb.d/'
+
+  redis:
+    image: 'redis'
+    ports:
+      - '6379:6379'
