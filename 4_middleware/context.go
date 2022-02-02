@@ -84,8 +84,7 @@ func timingsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		ctx = context.WithValue(ctx,
-			timingsKey,
-			&ctxTimings{
+			timingsKey, &ctxTimings{
 				Data: make(map[string]*Timing),
 				mx:   sync.Mutex{},
 			})
