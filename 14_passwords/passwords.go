@@ -26,7 +26,6 @@ func Root(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("Input password: %x\n", inputPassword)))
 	passwordWithSalt := append(salt[:], inputPassword[:]...)
 	w.Write([]byte(fmt.Sprintf("Password with salt: %x\n\n", passwordWithSalt)))
-
 	{
 		//Generate MD5 Hash
 		md5Hash := md5.New().Sum(passwordWithSalt)
@@ -52,7 +51,6 @@ func Root(w http.ResponseWriter, r *http.Request) {
 		verifyResPBKDF2Hash := append(verifyPBKDF2Salt, verifyPBKDF2Hash[:]...)
 		w.Write([]byte(fmt.Sprintf("Compare PBKDF2 hash: %d\n\n", bytes.Compare(verifyResPBKDF2Hash, resPBKDF2Hash[:]))))
 	}
-
 	{
 		//Generate Scrypt Hash
 		scryptHash, _ := scrypt.Key(inputPassword, salt, 4096, 8, 1, 32)
@@ -65,7 +63,6 @@ func Root(w http.ResponseWriter, r *http.Request) {
 		verifyResScryptHash := append(salt, verifyScryptHash[:]...)
 		w.Write([]byte(fmt.Sprintf("Compare Scrypt hash: %d\n\n", bytes.Compare(verifyResScryptHash, resScryptHash[:]))))
 	}
-
 	{
 		//Generate Argon2 Hash
 		argon2Hash := argon2.IDKey(inputPassword, salt, 1, 64 * 1024, 4, 32)
