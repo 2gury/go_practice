@@ -37,7 +37,7 @@ var messagesTmpl = `<html>
  	}
  </script>
  </head>
-<body>
+ <body>
 	&lt;form action=&quot;/rate?id=0&amp;vote=up&quot; method=&quot;POST&quot;&gt;
  	<br />
  	&lt;input type=&quot;hidden&quot; name=&quot;id&quot; value=&quot;0&quot;&gt;
