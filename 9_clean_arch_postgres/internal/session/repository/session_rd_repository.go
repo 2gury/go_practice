@@ -8,11 +8,6 @@ import (
 	"go_practice/9_clean_arch_db/internal/session"
 )
 
-type SessionX struct {
-	Login string
-	Useragent string
-}
-
 type SessionRdRepository struct {
 	rdConn redis.Conn
 }
