@@ -31,6 +31,7 @@ func (h *ProductHandler) Configure(m *mux.Router) {
 	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
 	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE")
 	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.GetProductById()).Methods("GET")
+
 	m.Use(mwares.PanicCoverMiddleware)
 	m.Use(mwares.AccessLogMiddleware)
 }
@@ -107,6 +108,7 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 		Price int    `json:"price" valid:"int,required"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
 		ctx := r.Context()
 		req := &Request{}
 		json.NewDecoder(r.Body).Decode(&req)
@@ -144,6 +146,7 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 		Price int    `json:"price" valid:"int,required"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)

@@ -1,17 +1,15 @@
 {
-  "database": {
+  "postgres": {
     "user": "postgres",
     "password": "postgres",
     "name": "products",
     "host": "localhost",
     "port": 5435
   },
-  "session_database": {
-    "user": "postgres",
-    "password": "postgres",
-    "name": "products",
+  "redis": {
+    "user": "user",
     "host": "localhost",
-    "port": 5435
+    "port": 6379
   },
   "logger": "./logs.log",
   "log_level": "INFO"

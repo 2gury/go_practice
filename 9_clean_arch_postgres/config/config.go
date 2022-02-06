@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/gomodule/redigo/redis"
 	_ "github.com/jackc/pgx/stdlib"
 	"os"
 	"path/filepath"
@@ -19,22 +20,15 @@ var logLevels = map[string]int{
 
 type Database struct {
 	User     string `json:"user"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-}
-
-type SessionDatabase struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
+	Password string `json:"password,omitempty"`
+	Name     string `json:"name,omitempty"`
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 }
 
 type Config struct {
-	Database   Database `json:"database"`
+	Postgres   Database `json:"postgres"`
+	Redis      Database `json:"redis"`
 	LoggerFile string   `json:"logger"`
 	LogLevel   string   `json:"log_level"`
 }
@@ -51,6 +45,16 @@ func (d *Database) GetPostgresDbConnection() (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func (d *Database) GetRedisDbConnection() (redis.Conn, error) {
+	connString := fmt.Sprintf("redis://%s:@%s:%d/0",
+		d.User, d.Host, d.Port)
+	redisConn, err := redis.DialURL(connString)
+	if err != nil {
+		return nil, err
+	}
+	return redisConn, nil
 }
 
 func LoadConfig(path string) (*Config, error) {

@@ -7,4 +7,9 @@ const (
 	CodeInternalError
 	CodeValidateError
 	CodeProductDoesNotExist
+	CodeUserDoesNotExist
+	CodeUserPasswordsDoNotMatch
+	CodeWrongPasswords
+	CodeStatusUnauthorized
+	CodeUserNotConfirmation
 )

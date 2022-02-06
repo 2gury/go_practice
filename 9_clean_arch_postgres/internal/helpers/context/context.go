@@ -4,9 +4,9 @@ import (
 	"context"
 )
 
-type key int
+type ContextKey int
 
-const StatusCode key = 1
+const StatusCode ContextKey = 1
 
 func WriteStatusCodeContext(ctx context.Context, code int) {
 	statusCode, ok := ctx.Value(StatusCode).(*int)
