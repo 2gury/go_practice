@@ -11,10 +11,10 @@ func CreateCookie(sess *models.Session) *http.Cookie {
 	return &http.Cookie{
 		Name: consts.SessionName,
 		Value: sess.Value,
-		//Path: "/",
-		//SameSite: http.SameSiteStrictMode,
+		Path: "/",
+		SameSite: http.SameSiteStrictMode,
 		Expires: time.Now().Add(sess.TimeDuration),
-		//HttpOnly: true,
+		HttpOnly: true,
 	}
 }
 
