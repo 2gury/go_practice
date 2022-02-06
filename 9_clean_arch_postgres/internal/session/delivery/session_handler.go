@@ -102,7 +102,7 @@ func (h *SessionHandler) Logout() http.HandlerFunc {
 			return
 		}
 		cutomErr := h.sessionUse.Delete(cookie.Value)
-		if err != nil {
+		if cutomErr != nil {
 			w.WriteHeader(cutomErr.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, cutomErr.HttpCode)
 			json.NewEncoder(w).Encode(response.Response{Error: cutomErr})
