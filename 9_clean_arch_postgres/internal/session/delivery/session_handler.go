@@ -7,7 +7,6 @@ import (
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
-	"go_practice/9_clean_arch_db/internal/mwares"
 	"go_practice/9_clean_arch_db/internal/session"
 	"go_practice/9_clean_arch_db/internal/user"
 	cookieHelper "go_practice/9_clean_arch_db/tools/cookie"
@@ -31,9 +30,6 @@ func NewSessionHandler(sessUse session.SessionUsecase, userUse user.UserUsecase)
 func (h *SessionHandler) Configure(m *mux.Router) {
 	m.HandleFunc("/api/v1/session", h.Login()).Methods("PUT")
 	m.HandleFunc("/api/v1/session", h.Logout()).Methods("DELETE")
-
-	m.Use(mwares.PanicCoverMiddleware)
-	m.Use(mwares.AccessLogMiddleware)
 }
 
 func (h *SessionHandler) Login() http.HandlerFunc {

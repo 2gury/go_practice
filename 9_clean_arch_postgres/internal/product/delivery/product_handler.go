@@ -7,7 +7,6 @@ import (
 	"go_practice/9_clean_arch_db/internal/helpers/context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
-	"go_practice/9_clean_arch_db/internal/mwares"
 	"go_practice/9_clean_arch_db/internal/product"
 	"go_practice/9_clean_arch_db/tools/request_reader"
 	"go_practice/9_clean_arch_db/tools/response"
@@ -31,9 +30,6 @@ func (h *ProductHandler) Configure(m *mux.Router) {
 	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
 	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE")
 	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.GetProductById()).Methods("GET")
-
-	m.Use(mwares.PanicCoverMiddleware)
-	m.Use(mwares.AccessLogMiddleware)
 }
 
 func (h *ProductHandler) GetProducts() http.HandlerFunc {

@@ -7,7 +7,6 @@ import (
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
-	"go_practice/9_clean_arch_db/internal/mwares"
 	"go_practice/9_clean_arch_db/internal/session"
 	"go_practice/9_clean_arch_db/internal/user"
 	cookieHelper "go_practice/9_clean_arch_db/tools/cookie"
@@ -35,9 +34,6 @@ func (h *UserHandler) Configure(m *mux.Router) {
 	m.HandleFunc("/api/v1/user/register", h.RegisterUser()).Methods("PUT")
 	m.HandleFunc("/api/v1/user/password", h.ChangePassword()).Methods("POST")
 	m.HandleFunc("/api/v1/user/profile", h.DeleteUserById()).Methods("DELETE")
-
-	m.Use(mwares.PanicCoverMiddleware)
-	m.Use(mwares.AccessLogMiddleware)
 }
 
 func (h *UserHandler) GetUserById() http.HandlerFunc {

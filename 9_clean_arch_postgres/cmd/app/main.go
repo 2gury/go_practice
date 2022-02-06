@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"go_practice/9_clean_arch_db/config"
+	"go_practice/9_clean_arch_db/internal/mwares"
 	productHandler "go_practice/9_clean_arch_db/internal/product/delivery"
 	productRepository "go_practice/9_clean_arch_db/internal/product/repository"
 	productUsecase "go_practice/9_clean_arch_db/internal/product/usecases"
@@ -55,6 +56,9 @@ func main() {
 	userHnd.Configure(mux)
 	productHnd.Configure(mux)
 	sessHnd.Configure(mux)
+
+	mux.Use(mwares.PanicCoverMiddleware)
+	mux.Use(mwares.AccessLogMiddleware)
 
 	srv := config.NewServer("8080", mux)
 	log.Fatal(srv.Run())
