@@ -13,17 +13,13 @@ var messages = []string{"Lulz", "keke"}
 var sanitizer = bluemonday.UGCPolicy()
 
 var messagesTmpl = `<html><body>
-
 	&lt;script&gt;alert(1)&lt;/script&gt;
-
 	<br />
 	<br />
-
 	<form action="/comment" method="post">
 		<textarea name="comment"></textarea><br />
 		<input type="submit" value="Comment">
 	</form>
-	
     {{range .Messages}}
 		<div style="border: 1px solid black; padding: 5px; margin: 5px;">
 			<!-- text/template по-умолч ничего не экранируется, надо указать | html --> 
