@@ -4,16 +4,29 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/asaskevich/govalidator"
 	"go_practice/9_clean_arch_db/internal/consts"
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
+	"go_practice/9_clean_arch_db/internal/session"
+	cookieHelper "go_practice/9_clean_arch_db/tools/cookie"
 	"go_practice/9_clean_arch_db/tools/logger"
 	"go_practice/9_clean_arch_db/tools/response"
 	"net/http"
 	"time"
 )
 
-func PanicCoverMiddleware(next http.Handler) http.Handler {
+type MiddlewareManager struct {
+	sessionUse session.SessionUsecase
+}
+
+func NewMiddlewareManager(sessUse session.SessionUsecase) *MiddlewareManager {
+	return &MiddlewareManager{
+		sessionUse: sessUse,
+	}
+}
+
+func (mwm *MiddlewareManager) PanicCoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -29,7 +42,7 @@ func PanicCoverMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func AccessLogMiddleware(next http.Handler) http.Handler {
+func (mwm *MiddlewareManager) AccessLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.Info(fmt.Sprintf("%s %s %s", r.RemoteAddr, r.Method, r.URL.Path))
 		ctx := r.Context()
@@ -40,5 +53,40 @@ func AccessLogMiddleware(next http.Handler) http.Handler {
 		start := time.Now()
 		next.ServeHTTP(w, r.WithContext(ctx))
 		logger.Info(fmt.Sprintf("Status: %d Work time: %s", code, time.Since(start)))
+	})
+}
+
+func (mwm *MiddlewareManager) CheckAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		sessCookie, err := cookieHelper.GetCookie(r, consts.SessionName)
+		if err != nil {
+			err := errors.Get(consts.CodeStatusUnauthorized)
+			w.WriteHeader(err.HttpCode)
+			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
+			json.NewEncoder(w).Encode(response.Response{Error: err})
+			return
+		}
+		if ok := govalidator.IsMD5(sessCookie.Value); !ok {
+			err := errors.Get(consts.CodeStatusUnauthorized)
+			w.WriteHeader(err.HttpCode)
+			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
+			json.NewEncoder(w).Encode(response.Response{Error: err})
+			return
+		}
+		sess, customErr := mwm.sessionUse.Get(sessCookie.Value)
+		if customErr != nil {
+			w.WriteHeader(customErr.HttpCode)
+			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
+			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+			return
+		}
+		ctx = context.WithValue(ctx,
+			contextHelper.SessionValue, sess.Value,
+		)
+		ctx = context.WithValue(ctx,
+			contextHelper.UserId, sess.UserId,
+		)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

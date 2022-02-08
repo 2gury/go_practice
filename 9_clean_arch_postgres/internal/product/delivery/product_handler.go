@@ -7,6 +7,7 @@ import (
 	"go_practice/9_clean_arch_db/internal/helpers/context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
+	"go_practice/9_clean_arch_db/internal/mwares"
 	"go_practice/9_clean_arch_db/internal/product"
 	"go_practice/9_clean_arch_db/tools/request_reader"
 	"go_practice/9_clean_arch_db/tools/response"
@@ -24,7 +25,7 @@ func NewProductHandler(use product.ProductUsecase) *ProductHandler {
 	}
 }
 
-func (h *ProductHandler) Configure(m *mux.Router) {
+func (h *ProductHandler) Configure(m *mux.Router, mwManager *mwares.MiddlewareManager) {
 	m.HandleFunc("/api/v1/product", h.GetProducts()).Methods("GET")
 	m.HandleFunc("/api/v1/product/", h.AddProduct()).Methods("PUT")
 	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
@@ -35,6 +36,7 @@ func (h *ProductHandler) Configure(m *mux.Router) {
 func (h *ProductHandler) GetProducts() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+
 		products, err := h.productUse.List()
 		if err != nil {
 			w.WriteHeader(err.HttpCode)
@@ -42,6 +44,7 @@ func (h *ProductHandler) GetProducts() http.HandlerFunc {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
@@ -74,6 +77,7 @@ func (h *ProductHandler) GetProductById() http.HandlerFunc {
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
 			w.WriteHeader(err.HttpCode)
@@ -88,6 +92,7 @@ func (h *ProductHandler) GetProductById() http.HandlerFunc {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
@@ -107,9 +112,9 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 		defer r.Body.Close()
 		ctx := r.Context()
 		req := &Request{}
+
 		json.NewDecoder(r.Body).Decode(&req)
-		err := request_reader.ValidateStruct(req)
-		if err != nil {
+		if err := request_reader.ValidateStruct(req); err != nil {
 			w.WriteHeader(err.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
 			json.NewEncoder(w).Encode(response.Response{Error: err})
@@ -126,6 +131,7 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
@@ -146,6 +152,7 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
 			w.WriteHeader(err.HttpCode)
@@ -171,6 +178,7 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
@@ -186,6 +194,7 @@ func (h *ProductHandler) DeleteProductById() http.HandlerFunc {
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
 			w.WriteHeader(err.HttpCode)
@@ -199,6 +208,7 @@ func (h *ProductHandler) DeleteProductById() http.HandlerFunc {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{

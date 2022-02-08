@@ -20,6 +20,7 @@ func NewUserPgRepository(conn *sql.DB) user.UserRepository {
 
 func (r *UserPgRepository) SelectById(id uint64) (*models.User, error) {
 	usr := &models.User{}
+
 	err := r.dbConn.QueryRow(
 		`SELECT id, email, password, role FROM users
                 WHERE id = $1`, id).
@@ -27,6 +28,7 @@ func (r *UserPgRepository) SelectById(id uint64) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return usr, nil
 }
 
@@ -49,11 +51,13 @@ func (r *UserPgRepository) Insert(usr *models.User) (uint64, error) {
 	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
+
 	return uint64(lastId), nil
 }
 
 func (r *UserPgRepository) SelectByEmail(email string) (*models.User, error) {
 	usr := &models.User{}
+
 	err := r.dbConn.QueryRow(
 		`SELECT id, email, password, role FROM users
                 WHERE email = $1`, email).
@@ -61,6 +65,7 @@ func (r *UserPgRepository) SelectByEmail(email string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return usr, nil
 }
 
@@ -83,6 +88,7 @@ func (r *UserPgRepository) UpdatePassword(usr *models.User) error {
 	if err := tx.Commit(); err != nil {
 		return nil
 	}
+
 	return nil
 }
 
@@ -103,5 +109,6 @@ func (r *UserPgRepository) DeleteById(id uint64) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
 	return nil
 }

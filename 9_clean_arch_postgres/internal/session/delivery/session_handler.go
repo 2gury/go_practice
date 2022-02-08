@@ -2,12 +2,11 @@ package delivery
 
 import (
 	"encoding/json"
-	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"go_practice/9_clean_arch_db/internal/consts"
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
-	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
+	"go_practice/9_clean_arch_db/internal/mwares"
 	"go_practice/9_clean_arch_db/internal/session"
 	"go_practice/9_clean_arch_db/internal/user"
 	cookieHelper "go_practice/9_clean_arch_db/tools/cookie"
@@ -28,9 +27,12 @@ func NewSessionHandler(sessUse session.SessionUsecase, userUse user.UserUsecase)
 	}
 }
 
-func (h *SessionHandler) Configure(m *mux.Router) {
+func (h *SessionHandler) Configure(m *mux.Router, mwManager *mwares.MiddlewareManager) {
 	m.HandleFunc("/api/v1/session", h.Login()).Methods("PUT")
-	m.HandleFunc("/api/v1/session", h.Logout()).Methods("DELETE")
+
+	customMux := m.PathPrefix("/api/v1").Subrouter()
+	customMux.Use(mwManager.CheckAuth)
+	customMux.Path("/session").HandlerFunc(h.Logout()).Methods("DELETE")
 }
 
 func (h *SessionHandler) Login() http.HandlerFunc {
@@ -43,9 +45,9 @@ func (h *SessionHandler) Login() http.HandlerFunc {
 		defer r.Body.Close()
 		ctx := r.Context()
 		req := &Request{}
+
 		json.NewDecoder(r.Body).Decode(req)
-		err := request_reader.ValidateStruct(req)
-		if err != nil {
+		if err := request_reader.ValidateStruct(req); err != nil {
 			w.WriteHeader(err.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
 			json.NewEncoder(w).Encode(response.Response{Error: err})
@@ -62,8 +64,7 @@ func (h *SessionHandler) Login() http.HandlerFunc {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
-		err = h.userUse.ComparePasswordAndHash(dbUsr, usr.Password)
-		if err != nil {
+		if err = h.userUse.ComparePasswordAndHash(dbUsr, usr.Password); err != nil {
 			w.WriteHeader(err.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
 			json.NewEncoder(w).Encode(response.Response{Error: err})
@@ -78,6 +79,7 @@ func (h *SessionHandler) Login() http.HandlerFunc {
 		}
 		cookie := cookieHelper.CreateCookie(sess)
 		cookieHelper.SetCookie(w, cookie)
+
 		w.WriteHeader(http.StatusOK)
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{Body: &response.Body{
@@ -90,29 +92,16 @@ func (h *SessionHandler) Login() http.HandlerFunc {
 func (h *SessionHandler) Logout() http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		cookie, err := cookieHelper.GetCookie(r, consts.SessionName)
-		if err != nil {
-			err := errors.Get(consts.CodeStatusUnauthorized)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
-			return
-		}
-		if ok := govalidator.IsMD5(cookie.Value); !ok {
-			err := errors.Get(consts.CodeStatusUnauthorized)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
-			return
-		}
-		cutomErr := h.sessionUse.Delete(cookie.Value)
-		if cutomErr != nil {
+		sessValue := contextHelper.GetSessionValue(ctx)
+
+		if cutomErr := h.sessionUse.Delete(sessValue); cutomErr != nil {
 			w.WriteHeader(cutomErr.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, cutomErr.HttpCode)
 			json.NewEncoder(w).Encode(response.Response{Error: cutomErr})
 			return
 		}
 		cookieHelper.DeleteCookie(w, r, consts.SessionName)
+
 		w.WriteHeader(http.StatusOK)
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{Body: &response.Body{

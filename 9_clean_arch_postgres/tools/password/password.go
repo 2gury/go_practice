@@ -11,6 +11,7 @@ func HashPassword(inputPassword string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(bytes), err
 }
 
@@ -19,6 +20,7 @@ func VerifyPasswordAndHash(inputPassword string, hashFromDb string) bool {
 	if err != nil {
 		return false
 	}
+
 	return true
 }
 

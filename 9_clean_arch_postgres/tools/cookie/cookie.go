@@ -38,6 +38,7 @@ func GetCookie(r *http.Request, cookieName string) (*http.Cookie, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return cookie, nil
 }
 
@@ -48,5 +49,6 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request, cookieName string) err
 	}
 	expiredCookie := CreateExpiredCookie(cookie)
 	http.SetCookie(w, expiredCookie)
+
 	return nil
 }

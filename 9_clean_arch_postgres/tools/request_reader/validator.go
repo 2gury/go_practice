@@ -23,6 +23,7 @@ func (qr *QueryReader) Read(request interface{}, query map[string][]string) *err
 	if err != nil {
 		return errors.New(consts.CodeValidateError, err)
 	}
+
 	return nil
 }
 
@@ -34,5 +35,6 @@ func ValidateStruct(request interface{}) *errors.Error {
 	if !ok {
 		return errors.Get(consts.CodeValidateError)
 	}
+
 	return nil
 }

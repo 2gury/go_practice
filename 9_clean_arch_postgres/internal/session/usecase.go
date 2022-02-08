@@ -8,5 +8,5 @@ import (
 type SessionUsecase interface {
 	Create(usr *models.User) (*models.Session, *errors.Error)
 	Delete(sessValue string) *errors.Error
-	Check(sessValue string) (*models.Session, *errors.Error)
+	Get(sessValue string) (*models.Session, *errors.Error)
 }

@@ -53,12 +53,15 @@ func main() {
 	userHnd := userHandler.NewUserHandler(userUse, sessUse)
 
 	mux := mux.NewRouter()
-	userHnd.Configure(mux)
-	productHnd.Configure(mux)
-	sessHnd.Configure(mux)
 
-	mux.Use(mwares.PanicCoverMiddleware)
-	mux.Use(mwares.AccessLogMiddleware)
+	mwManager := mwares.NewMiddlewareManager(sessUse)
+	mux.Use(mwManager.PanicCoverMiddleware)
+	mux.Use(mwManager.AccessLogMiddleware)
+
+	userHnd.Configure(mux, mwManager)
+	productHnd.Configure(mux, mwManager)
+	sessHnd.Configure(mux, mwManager)
+
 
 	srv := config.NewServer("8080", mux)
 	log.Fatal(srv.Run())

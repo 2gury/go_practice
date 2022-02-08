@@ -22,14 +22,16 @@ func (u *SessionUsecase) Create(usr *models.User) (*models.Session, *errors.Erro
 	if err != nil {
 		return nil, errors.Get(consts.CodeInternalError)
 	}
+
 	return sess, nil
 }
 
-func (u *SessionUsecase) Check(sessValue string) (*models.Session, *errors.Error) {
-	sess, err := u.sessionRep.Check(sessValue)
+func (u *SessionUsecase) Get(sessValue string) (*models.Session, *errors.Error) {
+	sess, err := u.sessionRep.Get(sessValue)
 	if err != nil {
 		return nil, errors.Get(consts.CodeInternalError)
 	}
+
 	return sess, nil
 }
 
@@ -38,5 +40,6 @@ func (u *SessionUsecase) Delete(sessValue string) *errors.Error {
 	if err != nil {
 		return errors.Get(consts.CodeInternalError)
 	}
+
 	return nil
 }

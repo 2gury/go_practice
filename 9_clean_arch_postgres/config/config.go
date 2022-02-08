@@ -36,6 +36,7 @@ type Config struct {
 func (d *Database) GetPostgresDbConnection() (*sql.DB, error) {
 	connString := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%d sslmode=disable",
 		d.User, d.Name, d.Password, d.Host, d.Port)
+
 	db, err := sql.Open("pgx", connString)
 	if err != nil {
 		return nil, err
@@ -44,16 +45,19 @@ func (d *Database) GetPostgresDbConnection() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return db, nil
 }
 
 func (d *Database) GetRedisDbConnection() (redis.Conn, error) {
 	connString := fmt.Sprintf("redis://%s:@%s:%d/0",
 		d.User, d.Host, d.Port)
+
 	redisConn, err := redis.DialURL(connString)
 	if err != nil {
 		return nil, err
 	}
+
 	return redisConn, nil
 }
 
@@ -70,6 +74,7 @@ func LoadConfig(path string) (*Config, error) {
 	if err := file.Close(); err != nil {
 		return nil, err
 	}
+
 	return config, nil
 }
 

@@ -27,6 +27,7 @@ func (u *UserUsecase) GetById(id uint64) (*models.User, *errors.Error) {
 		}
 		return nil, errors.Get(consts.CodeInternalError)
 	}
+
 	return usr, nil
 }
 
@@ -38,6 +39,7 @@ func (u *UserUsecase) GetByEmail(email string) (*models.User, *errors.Error) {
 		}
 		return nil, errors.Get(consts.CodeInternalError)
 	}
+
 	return usr, nil
 }
 
@@ -47,10 +49,12 @@ func (u *UserUsecase) Create(usr *models.User) (uint64, *errors.Error) {
 		return 0, errors.Get(consts.CodeInternalError)
 	}
 	usr.Password = hashedPassword
+
 	lastId, err := u.userRep.Insert(usr)
 	if err != nil {
 		return 0, errors.Get(consts.CodeInternalError)
 	}
+
 	return lastId, nil
 }
 
@@ -60,11 +64,13 @@ func (u *UserUsecase) UpdateUserPassword(usr *models.User) *errors.Error {
 		return errors.Get(consts.CodeInternalError)
 	}
 	usr.Password = hashedPassword
+
 	err = u.userRep.UpdatePassword(usr)
 	if err != nil {
 		return errors.Get(consts.CodeInternalError)
 	}
 	return nil
+
 }
 
 func (u *UserUsecase) DeleteUserById(id uint64) *errors.Error {
@@ -72,6 +78,7 @@ func (u *UserUsecase) DeleteUserById(id uint64) *errors.Error {
 	if err != nil {
 		return errors.Get(consts.CodeInternalError)
 	}
+
 	return nil
 }
 
@@ -80,6 +87,7 @@ func (u *UserUsecase) ComparePasswords(password, repeatedPassword string) *error
 	if !ok {
 		return errors.Get(consts.CodeUserPasswordsDoNotMatch)
 	}
+
 	return nil
 }
 
@@ -88,6 +96,7 @@ func (u *UserUsecase) ComparePasswordAndHash(usr *models.User, pass string) *err
 	if !ok {
 		return errors.Get(consts.CodeWrongPasswords)
 	}
+
 	return nil
 }
 

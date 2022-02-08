@@ -35,15 +35,16 @@ func (r *ProductPgRepository) SelectAll() ([]*models.Product, error) {
 		}
 		products = append(products, product)
 	}
-
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+
 	return products, nil
 }
 
 func (r *ProductPgRepository) SelectById(id uint64) (*models.Product, error) {
 	prod := &models.Product{}
+
 	err := r.dbConn.QueryRow(
 		`SELECT id, title, price FROM products 
                 WHERE id=$1`, id).
@@ -51,6 +52,7 @@ func (r *ProductPgRepository) SelectById(id uint64) (*models.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return prod, nil
 }
 
@@ -72,6 +74,7 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
+
 	return uint64(lastId), nil
 }
 
@@ -94,6 +97,7 @@ func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models
 	if err := tx.Commit(); err != nil {
 		return nil
 	}
+
 	return nil
 }
 
@@ -114,5 +118,6 @@ func (r *ProductPgRepository) DeleteById(id uint64) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
 	return nil
 }

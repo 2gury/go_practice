@@ -27,6 +27,7 @@ func (r *SessionRdRepository) Create(usrId uint64) (*models.Session, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	res, err := redis.String(r.rdConn.Do("SET", mkey, sess, "EX", inputSess.GetTime()))
 	if err != nil {
 		return nil, err
@@ -34,25 +35,30 @@ func (r *SessionRdRepository) Create(usrId uint64) (*models.Session, error) {
 	if res != "OK" {
 		return nil, fmt.Errorf("redis: not OK")
 	}
+
 	return inputSess, nil
 }
 
-func (r *SessionRdRepository) Check(sessValue string) (*models.Session, error) {
+func (r *SessionRdRepository) Get(sessValue string) (*models.Session, error) {
 	mkey := "sessions:" + sessValue
-	bytes, err := redis.Bytes(r.rdConn.Do("GET", mkey))
 	sess := &models.Session{}
+
+	bytes, err := redis.Bytes(r.rdConn.Do("GET", mkey))
 	err = json.Unmarshal(bytes, sess)
 	if err != nil {
 		return nil, err
 	}
+
 	return sess, nil
 }
 
 func (r *SessionRdRepository) Delete(sessValue string) error {
 	mkey := "sessions:" + sessValue
+
 	_, err := redis.Int(r.rdConn.Do("DEL", mkey))
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
