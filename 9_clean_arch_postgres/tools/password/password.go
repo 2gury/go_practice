@@ -1,6 +1,8 @@
 package password
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,3 +22,8 @@ func VerifyPasswordAndHash(inputPassword string, hashFromDb string) bool {
 	return true
 }
 
+func GetMD5Hash(text string) string {
+	hasher := md5.New()
+	hasher.Write([]byte(text))
+	return hex.EncodeToString(hasher.Sum(nil))
+}

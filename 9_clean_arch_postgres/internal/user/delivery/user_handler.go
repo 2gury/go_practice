@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"encoding/json"
+	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"go_practice/9_clean_arch_db/internal/consts"
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
@@ -136,6 +137,13 @@ func (u *UserHandler) ChangePassword() http.HandlerFunc {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
+		if ok := govalidator.IsMD5(sessCookie.Value); !ok {
+			err := errors.Get(consts.CodeStatusUnauthorized)
+			w.WriteHeader(err.HttpCode)
+			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
+			json.NewEncoder(w).Encode(response.Response{Error: err})
+			return
+		}
 		sess, customErr := u.sessionUse.Check(sessCookie.Value)
 		if customErr != nil {
 			w.WriteHeader(customErr.HttpCode)
@@ -203,6 +211,13 @@ func (u *UserHandler) DeleteUserById() http.HandlerFunc {
 		}
 		sessCookie, err := cookieHelper.GetCookie(r, consts.SessionName)
 		if err != nil {
+			err := errors.Get(consts.CodeStatusUnauthorized)
+			w.WriteHeader(err.HttpCode)
+			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
+			json.NewEncoder(w).Encode(response.Response{Error: err})
+			return
+		}
+		if ok := govalidator.IsMD5(sessCookie.Value); !ok {
 			err := errors.Get(consts.CodeStatusUnauthorized)
 			w.WriteHeader(err.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)

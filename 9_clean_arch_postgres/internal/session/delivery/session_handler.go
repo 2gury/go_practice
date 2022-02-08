@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"encoding/json"
+	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"go_practice/9_clean_arch_db/internal/consts"
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
@@ -91,6 +92,13 @@ func (h *SessionHandler) Logout() http.HandlerFunc {
 		ctx := r.Context()
 		cookie, err := cookieHelper.GetCookie(r, consts.SessionName)
 		if err != nil {
+			err := errors.Get(consts.CodeStatusUnauthorized)
+			w.WriteHeader(err.HttpCode)
+			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
+			json.NewEncoder(w).Encode(response.Response{Error: err})
+			return
+		}
+		if ok := govalidator.IsMD5(cookie.Value); !ok {
 			err := errors.Get(consts.CodeStatusUnauthorized)
 			w.WriteHeader(err.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)

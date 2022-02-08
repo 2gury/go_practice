@@ -18,6 +18,17 @@ func CreateCookie(sess *models.Session) *http.Cookie {
 	}
 }
 
+func CreateExpiredCookie(cookie *http.Cookie) *http.Cookie {
+	return &http.Cookie{
+		Name: consts.SessionName,
+		Value: cookie.Value,
+		Path: "/",
+		SameSite: http.SameSiteStrictMode,
+		Expires: time.Now().AddDate(0, 0, -1),
+		HttpOnly: true,
+	}
+}
+
 func SetCookie(w http.ResponseWriter, cookie *http.Cookie) {
 	http.SetCookie(w, cookie)
 }
@@ -35,7 +46,7 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request, cookieName string) err
 	if err != nil {
 		return err
 	}
-	cookie.Expires = time.Now().Add(-time.Hour)
-	http.SetCookie(w, cookie)
+	expiredCookie := CreateExpiredCookie(cookie)
+	http.SetCookie(w, expiredCookie)
 	return nil
 }
