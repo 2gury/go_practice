@@ -30,6 +30,7 @@ func getRemoteResourceBaseError() error {
 	if err != nil {
 		return fmt.Errorf("getRemoteResource: %s at %s", err, url)
 	}
+	
 	return nil
 }
 
