@@ -1,6 +1,8 @@
 package cookieHelper
 
 import (
+	"fmt"
+	"github.com/asaskevich/govalidator"
 	"go_practice/9_clean_arch_db/internal/consts"
 	"go_practice/9_clean_arch_db/internal/models"
 	"net/http"
@@ -38,17 +40,27 @@ func GetCookie(r *http.Request, cookieName string) (*http.Cookie, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	if err := IsCookieValueMd5(cookie); err != nil {
+		return nil, err
+	}
 	return cookie, nil
 }
 
 func DeleteCookie(w http.ResponseWriter, r *http.Request, cookieName string) error {
 	cookie, err := r.Cookie(cookieName)
+
 	if err != nil {
 		return err
 	}
 	expiredCookie := CreateExpiredCookie(cookie)
 	http.SetCookie(w, expiredCookie)
 
+	return nil
+}
+
+func IsCookieValueMd5(cookie *http.Cookie) error {
+	if ok := govalidator.IsMD5(cookie.Value); !ok {
+		return fmt.Errorf("cookie value is not valid")
+	}
 	return nil
 }

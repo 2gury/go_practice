@@ -6,7 +6,6 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"go_practice/9_clean_arch_db/internal/models"
 	"go_practice/9_clean_arch_db/internal/session"
-	"go_practice/9_clean_arch_db/tools/password"
 )
 
 type SessionRdRepository struct {
@@ -19,24 +18,23 @@ func NewSessionRdRepository(conn redis.Conn) session.SessionRepository {
 	}
 }
 
-func (r *SessionRdRepository) Create(usrId uint64) (*models.Session, error) {
-	inputSess := models.NewSession(usrId)
-	inputSess.Value = password.GetMD5Hash(inputSess.Value)
-	mkey := "sessions:" + inputSess.Value
-	sess, err := json.Marshal(inputSess)
+func (r *SessionRdRepository) Create(session *models.Session) error {
+
+	mkey := "sessions:" + session.Value
+	sess, err := json.Marshal(session)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	res, err := redis.String(r.rdConn.Do("SET", mkey, sess, "EX", inputSess.GetTime()))
+	res, err := redis.String(r.rdConn.Do("SET", mkey, sess, "EX", session.GetTime()))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if res != "OK" {
-		return nil, fmt.Errorf("redis: not OK")
+		return fmt.Errorf("redis: not OK")
 	}
 
-	return inputSess, nil
+	return nil
 }
 
 func (r *SessionRdRepository) Get(sessValue string) (*models.Session, error) {

@@ -10,6 +10,7 @@ import (
 	"go_practice/9_clean_arch_db/internal/mwares"
 	"go_practice/9_clean_arch_db/internal/session"
 	"go_practice/9_clean_arch_db/internal/user"
+	cookieHelper "go_practice/9_clean_arch_db/tools/cookie"
 	"go_practice/9_clean_arch_db/tools/request_reader"
 	"go_practice/9_clean_arch_db/tools/response"
 	"net/http"
@@ -46,21 +47,16 @@ func (h *UserHandler) GetUserById() http.HandlerFunc {
 
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		usr, err := h.userUse.GetById(intUserId)
 		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"user": usr,
@@ -82,15 +78,11 @@ func (u *UserHandler) RegisterUser() http.HandlerFunc {
 
 		json.NewDecoder(r.Body).Decode(req)
 		if err := request_reader.ValidateStruct(req); err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		if err := u.userUse.ComparePasswords(req.Password, req.RepeatedPassword); err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		user := &models.User{
@@ -99,14 +91,11 @@ func (u *UserHandler) RegisterUser() http.HandlerFunc {
 		}
 		lastId, err := u.userUse.Create(user)
 		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"id": lastId,
@@ -124,38 +113,33 @@ func (u *UserHandler) ChangePassword() http.HandlerFunc {
 		defer r.Body.Close()
 		ctx := r.Context()
 		req := &Request{}
-		userId := contextHelper.GetUserId(ctx)
 
+		userId, err := contextHelper.GetUserId(ctx)
+		if err != nil {
+			response.WriteErrorResponse(w, ctx, err)
+			return
+		}
 		json.NewDecoder(r.Body).Decode(req)
-		if customErr := request_reader.ValidateStruct(req); customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		if err := request_reader.ValidateStruct(req); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		usr, customErr := u.userUse.GetById(userId)
-		if customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		usr, err := u.userUse.GetById(userId)
+		if err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		if customErr = u.userUse.ComparePasswordAndHash(usr, req.OldPassword); customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		if err = u.userUse.ComparePasswordAndHash(usr, req.OldPassword); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		usr.Password = req.NewPassword
-		if customErr = u.userUse.UpdateUserPassword(usr); customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		if err = u.userUse.UpdateUserPassword(usr); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"status": "OK",
@@ -172,37 +156,33 @@ func (u *UserHandler) DeleteUserById() http.HandlerFunc {
 		defer r.Body.Close()
 		ctx := r.Context()
 		req := &Request{}
-		userId := contextHelper.GetUserId(ctx)
 
+		userId, err := contextHelper.GetUserId(ctx)
+		if err != nil {
+			response.WriteErrorResponse(w, ctx, err)
+			return
+		}
 		json.NewDecoder(r.Body).Decode(req)
-		if customErr := request_reader.ValidateStruct(req); customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		if err := request_reader.ValidateStruct(req); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		usr, customErr := u.userUse.GetById(userId)
-		if customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		usr, err := u.userUse.GetById(userId)
+		if err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		if customErr = u.userUse.ComparePasswordAndHash(usr, req.Password); customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		if err = u.userUse.ComparePasswordAndHash(usr, req.Password); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		if customErr = u.userUse.DeleteUserById(usr.Id); customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+		if err = u.userUse.DeleteUserById(usr.Id); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
+		cookieHelper.DeleteCookie(w, r, consts.SessionName)
 
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"status": "OK",

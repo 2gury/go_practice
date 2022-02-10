@@ -5,6 +5,7 @@ import (
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
 	"go_practice/9_clean_arch_db/internal/session"
+	"go_practice/9_clean_arch_db/tools/password"
 )
 
 type SessionUsecase struct {
@@ -17,8 +18,11 @@ func NewSessionUsecase(rep session.SessionRepository) session.SessionUsecase {
 	}
 }
 
-func (u *SessionUsecase) Create(usr *models.User) (*models.Session, *errors.Error) {
-	sess, err := u.sessionRep.Create(usr.Id)
+func (u *SessionUsecase) Create(userId uint64) (*models.Session, *errors.Error) {
+	sess := models.NewSession(userId)
+	sess.Value = password.GetMD5Hash(sess.Value)
+
+	err := u.sessionRep.Create(sess)
 	if err != nil {
 		return nil, errors.Get(consts.CodeInternalError)
 	}
@@ -26,7 +30,7 @@ func (u *SessionUsecase) Create(usr *models.User) (*models.Session, *errors.Erro
 	return sess, nil
 }
 
-func (u *SessionUsecase) Get(sessValue string) (*models.Session, *errors.Error) {
+func (u *SessionUsecase) Check(sessValue string) (*models.Session, *errors.Error) {
 	sess, err := u.sessionRep.Get(sessValue)
 	if err != nil {
 		return nil, errors.Get(consts.CodeInternalError)

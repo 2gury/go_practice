@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/asaskevich/govalidator"
 	"go_practice/9_clean_arch_db/internal/consts"
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
@@ -67,14 +66,7 @@ func (mwm *MiddlewareManager) CheckAuth(next http.Handler) http.Handler {
 			json.NewEncoder(w).Encode(response.Response{Error: err})
 			return
 		}
-		if ok := govalidator.IsMD5(sessCookie.Value); !ok {
-			err := errors.Get(consts.CodeStatusUnauthorized)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
-			return
-		}
-		sess, customErr := mwm.sessionUse.Get(sessCookie.Value)
+		sess, customErr := mwm.sessionUse.Check(sessCookie.Value)
 		if customErr != nil {
 			w.WriteHeader(customErr.HttpCode)
 			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)

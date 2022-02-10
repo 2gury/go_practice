@@ -99,5 +99,3 @@ func (u *UserUsecase) ComparePasswordAndHash(usr *models.User, pass string) *err
 
 	return nil
 }
-
-

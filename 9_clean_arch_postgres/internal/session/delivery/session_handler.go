@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/mux"
 	"go_practice/9_clean_arch_db/internal/consts"
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
-	"go_practice/9_clean_arch_db/internal/models"
 	"go_practice/9_clean_arch_db/internal/mwares"
 	"go_practice/9_clean_arch_db/internal/session"
 	"go_practice/9_clean_arch_db/internal/user"
@@ -48,40 +47,27 @@ func (h *SessionHandler) Login() http.HandlerFunc {
 
 		json.NewDecoder(r.Body).Decode(req)
 		if err := request_reader.ValidateStruct(req); err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		usr := &models.User{
-			Email: req.Email,
-			Password: req.Password,
-		}
-		dbUsr, err := h.userUse.GetByEmail(usr.Email)
+		dbUsr, err := h.userUse.GetByEmail(req.Email)
 		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		if err = h.userUse.ComparePasswordAndHash(dbUsr, usr.Password); err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+		if err = h.userUse.ComparePasswordAndHash(dbUsr, req.Password); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		sess, err := h.sessionUse.Create(dbUsr)
+		sess, err := h.sessionUse.Create(dbUsr.Id)
 		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		cookie := cookieHelper.CreateCookie(sess)
 		cookieHelper.SetCookie(w, cookie)
 
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{Body: &response.Body{
 				"status": "OK",
 			},
@@ -92,18 +78,19 @@ func (h *SessionHandler) Login() http.HandlerFunc {
 func (h *SessionHandler) Logout() http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		sessValue := contextHelper.GetSessionValue(ctx)
 
-		if cutomErr := h.sessionUse.Delete(sessValue); cutomErr != nil {
-			w.WriteHeader(cutomErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, cutomErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: cutomErr})
+		sessValue, err := contextHelper.GetSessionValue(ctx)
+		if err != nil {
+			response.WriteErrorResponse(w, ctx, err)
+			return
+		}
+		if err := h.sessionUse.Delete(sessValue); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		cookieHelper.DeleteCookie(w, r, consts.SessionName)
 
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{Body: &response.Body{
 				"status": "OK",
 			},

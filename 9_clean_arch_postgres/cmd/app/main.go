@@ -66,4 +66,3 @@ func main() {
 	srv := config.NewServer("8080", mux)
 	log.Fatal(srv.Run())
 }
-
