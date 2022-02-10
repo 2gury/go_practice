@@ -28,6 +28,7 @@ func NewSessionManager(conn redis.Conn)  *SessionManager {
 func (sm *SessionManager) Create(in *Session) (*SessionId, error) {
 	id := &SessionId{RandStringRunes(sessKeyLen)}
 	mkey := "sessions:" + id.Id
+	
 	sess, err := json.Marshal(in)
 	if err != nil {
 		return nil, err
@@ -39,22 +40,26 @@ func (sm *SessionManager) Create(in *Session) (*SessionId, error) {
 	if res != "OK" {
 		return nil, fmt.Errorf("redis: not OK")
 	}
+	
 	return id, nil
 }
 
 func (sm *SessionManager) Check(in *SessionId) (*Session, error) {
 	mkey := "sessions:" + in.Id
-	bytes, err := redis.Bytes(sm.redisConn.Do("GET", mkey))
 	session := &Session{}
+	
+	bytes, err := redis.Bytes(sm.redisConn.Do("GET", mkey))
 	err = json.Unmarshal(bytes, session)
 	if err != nil {
 		return nil, err
 	}
+	
 	return session, nil
 }
 
 func (sm *SessionManager) Delete(in *SessionId) (error) {
 	mkey := "sessions:" + in.Id
+	
 	res, err := redis.String(sm.redisConn.Do("DEL", mkey))
 	if err != nil {
 		return err
@@ -62,5 +67,6 @@ func (sm *SessionManager) Delete(in *SessionId) (error) {
 	if res != "OK" {
 		return fmt.Errorf("redis: not OK")
 	}
+	
 	return nil
 }
