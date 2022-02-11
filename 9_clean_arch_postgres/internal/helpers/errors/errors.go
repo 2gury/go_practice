@@ -50,9 +50,34 @@ var Errors = map[consts.ErrorCode]*Error{
 		Message:     "Product doesn't exist",
 		UserMessage: "Такого продукта не существует",
 	},
+	consts.CodeUserDoesNotExist: {
+		HttpCode:    http.StatusBadRequest,
+		Message:     "User doesn't exist",
+		UserMessage: "Такого пользовтеля не существует",
+	},
+	consts.CodeUserPasswordsDoNotMatch: {
+		HttpCode:    http.StatusBadRequest,
+		Message:     "Passwords don't match",
+		UserMessage: "Пароли должны совпадать",
+	},
+	consts.CodeWrongPasswords: {
+		HttpCode:    http.StatusBadRequest,
+		Message:     "The password entered is invalid",
+		UserMessage: "Введенный пароль не подходит",
+	},
 	consts.CodeValidateError: {
 		HttpCode:    http.StatusBadRequest,
 		Message:     "Sorry, can't validate request",
 		UserMessage: "Неверный формат параметров запроса",
+	},
+	consts.CodeStatusUnauthorized: {
+		HttpCode:    http.StatusUnauthorized,
+		Message:     "Sorry, you are not authorized",
+		UserMessage: "Вы не авторизированы",
+	},
+	consts.CodeUserNotConfirmation: {
+		HttpCode:    http.StatusBadRequest,
+		Message:     "Sorry, you should confirm action",
+		UserMessage: "Вы не подтвердили действие",
 	},
 }

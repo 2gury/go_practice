@@ -24,6 +24,7 @@ func (u *ProductUsecase) List() ([]*models.Product, *errors.Error) {
 	if err != nil {
 		return nil, errors.Get(consts.CodeInternalError)
 	}
+
 	return products, nil
 }
 
@@ -32,10 +33,12 @@ func (u *ProductUsecase) Create(product models.Product) (uint64, *errors.Error) 
 		return 0, errors.New(consts.CodeBadRequest, systetmErrors.New(
 			"Error when add product. Price should be greater than 0. Title should be not empty"))
 	}
+
 	id, err := u.productRep.Insert(product)
 	if err != nil {
 		return 0, errors.Get(consts.CodeInternalError)
 	}
+
 	return id, nil
 }
 func (u *ProductUsecase) GetById(id uint64) (*models.Product, *errors.Error) {
@@ -46,6 +49,7 @@ func (u *ProductUsecase) GetById(id uint64) (*models.Product, *errors.Error) {
 		}
 		return nil, errors.Get(consts.CodeInternalError)
 	}
+
 	return prod, nil
 }
 func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Product) *errors.Error {
@@ -53,6 +57,7 @@ func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Prod
 		return errors.New(consts.CodeBadRequest, systetmErrors.New(
 			"Error when add product. Price should be greater than 0. Title should be not empty"))
 	}
+
 	if _, err := u.GetById(productId); err != nil {
 		return err
 	}
@@ -60,6 +65,7 @@ func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Prod
 	if err != nil {
 		return errors.Get(consts.CodeInternalError)
 	}
+
 	return nil
 }
 
@@ -71,5 +77,6 @@ func (u *ProductUsecase) DeleteById(id uint64) *errors.Error {
 	if err != nil {
 		return errors.Get(consts.CodeInternalError)
 	}
+
 	return nil
 }

@@ -25,27 +25,24 @@ func NewProductHandler(use product.ProductUsecase) *ProductHandler {
 	}
 }
 
-func (h *ProductHandler) Configure(m *mux.Router) {
-	m.HandleFunc("/product", h.GetProducts()).Methods("GET")
-	m.HandleFunc("/product/", h.AddProduct()).Methods("PUT")
-	m.HandleFunc("/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
-	m.HandleFunc("/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE")
-	m.HandleFunc("/product/{id:[0-9]+}", h.GetProductById()).Methods("GET")
-	m.Use(mwares.PanicCoverMiddleware)
-	m.Use(mwares.AccessLogMiddleware)
+func (h *ProductHandler) Configure(m *mux.Router, mwManager *mwares.MiddlewareManager) {
+	m.HandleFunc("/api/v1/product", h.GetProducts()).Methods("GET")
+	m.HandleFunc("/api/v1/product/", h.AddProduct()).Methods("PUT")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.GetProductById()).Methods("GET")
 }
 
 func (h *ProductHandler) GetProducts() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+
 		products, err := h.productUse.List()
 		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
+
 		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
@@ -77,22 +74,19 @@ func (h *ProductHandler) GetProductById() http.HandlerFunc {
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		product, err := h.productUse.GetById(intProductId)
 		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"product": product,
@@ -107,14 +101,13 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 		Price int    `json:"price" valid:"int,required"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
 		ctx := r.Context()
 		req := &Request{}
+
 		json.NewDecoder(r.Body).Decode(&req)
-		err := request_reader.ValidateStruct(req)
-		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+		if err := request_reader.ValidateStruct(req); err != nil {
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		product := models.Product{
@@ -123,13 +116,11 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 		}
 		id, err := h.productUse.Create(product)
 		if err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"id": id,
@@ -144,22 +135,20 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 		Price int    `json:"price" valid:"int,required"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		req := &Request{}
 		json.NewDecoder(r.Body).Decode(&req)
 		if err := request_reader.ValidateStruct(req); err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		product := models.Product{
@@ -167,13 +156,11 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 			Price: req.Price,
 		}
 		if err := h.productUse.UpdateById(intProductId, product); err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"updated_elements": true,
@@ -187,21 +174,18 @@ func (h *ProductHandler) DeleteProductById() http.HandlerFunc {
 		ctx := r.Context()
 		productId, _ := mux.Vars(r)["id"]
 		intProductId, parseErr := strconv.ParseUint(productId, 10, 64)
+
 		if parseErr != nil {
 			err := errors.Get(consts.CodeValidateError)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		if err := h.productUse.DeleteById(intProductId); err != nil {
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		contextHelper.WriteStatusCodeContext(ctx, http.StatusOK)
+
+		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{
 			Body: &response.Body{
 				"deleted_elements": true,

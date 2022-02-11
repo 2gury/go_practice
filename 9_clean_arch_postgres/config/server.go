@@ -16,8 +16,8 @@ func NewServer(port string, handler http.Handler) *HTTPServer {
 		Server: &http.Server{
 			Addr:         ":" + port,
 			Handler:      handler,
-			ReadTimeout:  time.Second,
-			WriteTimeout: time.Second,
+			ReadTimeout:  3 * time.Second,
+			WriteTimeout: 3 * time.Second,
 		},
 	}
 }
