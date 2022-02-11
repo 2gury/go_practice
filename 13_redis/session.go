@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
@@ -27,6 +29,7 @@ func NewSessionManager(conn redis.Conn)  *SessionManager {
 
 func (sm *SessionManager) Create(in *Session) (*SessionId, error) {
 	id := &SessionId{RandStringRunes(sessKeyLen)}
+	id.Id = GetMD5Hash(id.Id)
 	mkey := "sessions:" + id.Id
 	
 	sess, err := json.Marshal(in)
@@ -69,4 +72,10 @@ func (sm *SessionManager) Delete(in *SessionId) (error) {
 	}
 	
 	return nil
+}
+
+func GetMD5Hash(text string) string {
+	hasher := md5.New()
+	hasher.Write([]byte(text))
+	return hex.EncodeToString(hasher.Sum(nil))
 }
