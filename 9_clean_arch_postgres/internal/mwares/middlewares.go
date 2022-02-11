@@ -2,7 +2,6 @@ package mwares
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"go_practice/9_clean_arch_db/internal/consts"
 	contextHelper "go_practice/9_clean_arch_db/internal/helpers/context"
@@ -31,9 +30,7 @@ func (mwm *MiddlewareManager) PanicCoverMiddleware(next http.Handler) http.Handl
 			if err := recover(); err != nil {
 				ctx := r.Context()
 				customErr := errors.Get(consts.CodeInternalError)
-				w.WriteHeader(customErr.HttpCode)
-				contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-				json.NewEncoder(w).Encode(response.Response{Error: customErr})
+				response.WriteErrorResponse(w, ctx, customErr)
 				logger.Warn(fmt.Sprintf("%s %d %s %s %s", r.RemoteAddr, customErr.HttpCode, r.Method, r.URL.Path, err))
 			}
 		}()
@@ -61,16 +58,12 @@ func (mwm *MiddlewareManager) CheckAuth(next http.Handler) http.Handler {
 		sessCookie, err := cookieHelper.GetCookie(r, consts.SessionName)
 		if err != nil {
 			err := errors.Get(consts.CodeStatusUnauthorized)
-			w.WriteHeader(err.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, err.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: err})
+			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
 		sess, customErr := mwm.sessionUse.Check(sessCookie.Value)
 		if customErr != nil {
-			w.WriteHeader(customErr.HttpCode)
-			contextHelper.WriteStatusCodeContext(ctx, customErr.HttpCode)
-			json.NewEncoder(w).Encode(response.Response{Error: customErr})
+			response.WriteErrorResponse(w, ctx, customErr)
 			return
 		}
 		ctx = context.WithValue(ctx,
