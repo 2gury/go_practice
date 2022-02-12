@@ -57,6 +57,7 @@ func main() {
 	mwManager := mwares.NewMiddlewareManager(sessUse)
 	mux.Use(mwManager.PanicCoverMiddleware)
 	mux.Use(mwManager.AccessLogMiddleware)
+	mux.Use(mwManager.CORS)
 
 	userHnd.Configure(mux, mwManager)
 	productHnd.Configure(mux, mwManager)

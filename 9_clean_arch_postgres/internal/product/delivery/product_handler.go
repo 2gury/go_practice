@@ -26,11 +26,11 @@ func NewProductHandler(use product.ProductUsecase) *ProductHandler {
 }
 
 func (h *ProductHandler) Configure(m *mux.Router, mwManager *mwares.MiddlewareManager) {
-	m.HandleFunc("/api/v1/product", h.GetProducts()).Methods("GET")
-	m.HandleFunc("/api/v1/product/", h.AddProduct()).Methods("PUT")
-	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST")
-	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE")
-	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.GetProductById()).Methods("GET")
+	m.HandleFunc("/api/v1/product", h.GetProducts()).Methods("GET", "OPTIONS")
+	m.HandleFunc("/api/v1/product/", h.AddProduct()).Methods("PUT", "OPTIONS")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.UpdateProductById()).Methods("POST", "OPTIONS")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.DeleteProductById()).Methods("DELETE", "OPTIONS")
+	m.HandleFunc("/api/v1/product/{id:[0-9]+}", h.GetProductById()).Methods("GET", "OPTIONS")
 }
 
 func (h *ProductHandler) GetProducts() http.HandlerFunc {
