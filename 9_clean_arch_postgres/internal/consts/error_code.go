@@ -12,4 +12,5 @@ const (
 	CodeWrongPasswords
 	CodeStatusUnauthorized
 	CodeUserNotConfirmation
+	CodeMethodNotAllowed
 )

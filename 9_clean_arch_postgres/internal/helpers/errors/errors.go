@@ -80,4 +80,9 @@ var Errors = map[consts.ErrorCode]*Error{
 		Message:     "Sorry, you should confirm action",
 		UserMessage: "Вы не подтвердили действие",
 	},
+	consts.CodeMethodNotAllowed: {
+		HttpCode:    http.StatusMethodNotAllowed,
+		Message:     "Sorry, this method now allowed",
+		UserMessage: "Невозможно выполнить данное действие",
+	},
 }

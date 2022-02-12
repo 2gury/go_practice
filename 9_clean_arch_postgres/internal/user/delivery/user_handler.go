@@ -30,13 +30,13 @@ func NewUserHandler(usrUse user.UserUsecase, sessUse session.SessionUsecase) *Us
 }
 
 func (h *UserHandler) Configure(m *mux.Router, mwManager *mwares.MiddlewareManager) {
-	m.HandleFunc("/api/v1/user/{id:[0-9]+}", h.GetUserById()).Methods("GET")
-	m.HandleFunc("/api/v1/user/register", h.RegisterUser()).Methods("PUT")
+	m.HandleFunc("/api/v1/user/{id:[0-9]+}", h.GetUserById()).Methods("GET", "OPTIONS")
+	m.HandleFunc("/api/v1/user/register", h.RegisterUser()).Methods("PUT", "OPTIONS")
 
 	customMux := m.PathPrefix("/api/v1").Subrouter()
 	customMux.Use(mwManager.CheckAuth)
-	customMux.Path("/user/password").HandlerFunc(h.ChangePassword()).Methods("POST")
-	customMux.Path("/user/profile").HandlerFunc(h.DeleteUserById()).Methods("DELETE")
+	customMux.Path("/user/password").HandlerFunc(h.ChangePassword()).Methods("POST", "OPTIONS")
+	customMux.Path("/user/profile").HandlerFunc(h.DeleteUserById()).Methods("DELETE", "OPTIONS")
 }
 
 func (h *UserHandler) GetUserById() http.HandlerFunc {

@@ -27,11 +27,11 @@ func NewSessionHandler(sessUse session.SessionUsecase, userUse user.UserUsecase)
 }
 
 func (h *SessionHandler) Configure(m *mux.Router, mwManager *mwares.MiddlewareManager) {
-	m.HandleFunc("/api/v1/session", h.Login()).Methods("PUT")
+	m.HandleFunc("/api/v1/session", h.Login()).Methods("PUT", "OPTIONS")
 
 	customMux := m.PathPrefix("/api/v1").Subrouter()
 	customMux.Use(mwManager.CheckAuth)
-	customMux.Path("/session").HandlerFunc(h.Logout()).Methods("DELETE")
+	customMux.Path("/session").HandlerFunc(h.Logout()).Methods("DELETE", "OPTIONS")
 }
 
 func (h *SessionHandler) Login() http.HandlerFunc {
