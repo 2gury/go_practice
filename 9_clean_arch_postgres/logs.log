@@ -63,3 +63,5 @@
 2022-02-12T13:24:15.773+0300	[34mINFO[0m	logger/logger.go:60	[Status: 405 Work time: 146.196µs]
 2022-02-12T13:24:22.473+0300	[34mINFO[0m	logger/logger.go:60	[[::1]:50004 PUT /api/v1/session]
 2022-02-12T13:24:23.516+0300	[34mINFO[0m	logger/logger.go:60	[Status: 200 Work time: 1.041724522s]
+2022-02-12T13:25:23.474+0300	[34mINFO[0m	logger/logger.go:60	[[::1]:50263 OPTIONS /api/v1/session]
+2022-02-12T13:25:23.475+0300	[34mINFO[0m	logger/logger.go:60	[Status: 0 Work time: 9.405µs]
