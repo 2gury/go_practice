@@ -49,7 +49,7 @@ func (mr *MockProductRepositoryMockRecorder) DeleteById(id interface{}) *gomock.
 }
 
 // Insert mocks base method.
-func (m *MockProductRepository) Insert(product models.Product) (uint64, error) {
+func (m *MockProductRepository) Insert(product *models.Product) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Insert", product)
 	ret0, _ := ret[0].(uint64)
@@ -94,7 +94,7 @@ func (mr *MockProductRepositoryMockRecorder) SelectById(id interface{}) *gomock.
 }
 
 // UpdateById mocks base method.
-func (m *MockProductRepository) UpdateById(productId uint64, updatedProduct models.Product) error {
+func (m *MockProductRepository) UpdateById(productId uint64, updatedProduct *models.Product) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateById", productId, updatedProduct)
 	ret0, _ := ret[0].(error)

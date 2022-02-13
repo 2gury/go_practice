@@ -42,7 +42,6 @@ func (mwm *MiddlewareManager) CORS(next http.Handler) http.Handler {
 			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Language, Content-Type, Content" +
@@ -51,7 +50,6 @@ func (mwm *MiddlewareManager) CORS(next http.Handler) http.Handler {
 		if r.Method == "OPTIONS" {
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }

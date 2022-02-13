@@ -36,7 +36,7 @@ func (m *MockProductUsecase) EXPECT() *MockProductUsecaseMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockProductUsecase) Create(product models.Product) (uint64, *errors.Error) {
+func (m *MockProductUsecase) Create(product *models.Product) (uint64, *errors.Error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", product)
 	ret0, _ := ret[0].(uint64)
@@ -95,7 +95,7 @@ func (mr *MockProductUsecaseMockRecorder) List() *gomock.Call {
 }
 
 // UpdateById mocks base method.
-func (m *MockProductUsecase) UpdateById(productId uint64, updatedProduct models.Product) *errors.Error {
+func (m *MockProductUsecase) UpdateById(productId uint64, updatedProduct *models.Product) *errors.Error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateById", productId, updatedProduct)
 	ret0, _ := ret[0].(*errors.Error)
