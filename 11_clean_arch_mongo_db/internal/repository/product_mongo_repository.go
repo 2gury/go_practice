@@ -21,6 +21,7 @@ func NewProductMongoRepository(collection *mongo.Collection) internal.ProductRep
 
 func (r *ProductMongoRepository) SelectAll() ([]*models.Product, error) {
 	products := make([]*models.Product, 0, 10)
+	
 	res, err := r.coll.Find(context.Background(), bson.M{})
 	if err != nil {
 		return nil, err
@@ -29,11 +30,13 @@ func (r *ProductMongoRepository) SelectAll() ([]*models.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+	
 	return products, nil
 }
 
 func (r *ProductMongoRepository) SelectById(id string) (*models.Product, error) {
 	hexId, err := primitive.ObjectIDFromHex(id)
+	
 	if err != nil {
 		return nil, err
 	}
@@ -42,16 +45,19 @@ func (r *ProductMongoRepository) SelectById(id string) (*models.Product, error) 
 	if err != nil {
 		return nil, err
 	}
+	
 	return product, nil
 }
 
 func (r *ProductMongoRepository) Insert(product *models.Product) (string, error) {
 	id := primitive.NewObjectID()
 	product.Id = id
+	
 	_, err := r.coll.InsertOne(context.Background(), product)
 	if err != nil {
 		return "", nil
 	}
+	
 	return id.Hex(), nil
 }
 
@@ -60,11 +66,13 @@ func (r *ProductMongoRepository) Update(product *models.Product) (int64, error) 
 	if err != nil {
 		return 0, err
 	}
+	
 	return 1, nil
 }
 
 func (r *ProductMongoRepository) DeleteById(id string) (int64, error) {
 	hexId, err := primitive.ObjectIDFromHex(id)
+	
 	if err != nil {
 		return 0, err
 	}
@@ -72,5 +80,6 @@ func (r *ProductMongoRepository) DeleteById(id string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	
 	return 1, nil
 }
