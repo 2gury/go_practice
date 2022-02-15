@@ -16,6 +16,7 @@ require (
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/rafaeljusto/redigomock v2.4.0+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect

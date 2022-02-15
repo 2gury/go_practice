@@ -19,14 +19,12 @@ func NewSessionRdRepository(conn redis.Conn) session.SessionRepository {
 }
 
 func (r *SessionRdRepository) Create(session *models.Session) error {
-
-	mkey := "sessions:" + session.Value
 	sess, err := json.Marshal(session)
 	if err != nil {
 		return err
 	}
 
-	res, err := redis.String(r.rdConn.Do("SET", mkey, sess, "EX", session.GetTime()))
+	res, err := redis.String(r.rdConn.Do("SET", session.Value, sess, "EX", session.GetTime()))
 	if err != nil {
 		return err
 	}
@@ -38,10 +36,9 @@ func (r *SessionRdRepository) Create(session *models.Session) error {
 }
 
 func (r *SessionRdRepository) Get(sessValue string) (*models.Session, error) {
-	mkey := "sessions:" + sessValue
 	sess := &models.Session{}
 
-	bytes, err := redis.Bytes(r.rdConn.Do("GET", mkey))
+	bytes, err := redis.Bytes(r.rdConn.Do("GET", sessValue))
 	err = json.Unmarshal(bytes, sess)
 	if err != nil {
 		return nil, err
@@ -51,9 +48,7 @@ func (r *SessionRdRepository) Get(sessValue string) (*models.Session, error) {
 }
 
 func (r *SessionRdRepository) Delete(sessValue string) error {
-	mkey := "sessions:" + sessValue
-
-	_, err := redis.Int(r.rdConn.Do("DEL", mkey))
+	_, err := redis.Int(r.rdConn.Do("DEL", sessValue))
 	if err != nil {
 		return err
 	}
