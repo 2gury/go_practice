@@ -32,9 +32,9 @@ var messagesTmpl = `<html><body>
 
 func Root(w http.ResponseWriter, r *http.Request) {
 	param := r.FormValue("param")
-
 	outputMessages := []template.HTML{}
 	tmpl := template.New("main")
+	
 	tmpl, _ = tmpl.Parse(messagesTmpl)
 	if param == "sanitize" {
 		for _, v := range messages {
@@ -55,6 +55,7 @@ func Root(w http.ResponseWriter, r *http.Request) {
 func AddComment(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	commentText := r.FormValue("comment")
+	
 	messages = append(messages, commentText)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
