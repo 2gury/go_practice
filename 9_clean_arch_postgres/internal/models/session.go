@@ -7,8 +7,8 @@ import (
 )
 
 type Session struct {
-	Value     string `json:"value"`
-	UserId    uint64 `json:"user_id"`
+	Value        string        `json:"value"`
+	UserId       uint64        `json:"user_id"`
 	TimeDuration time.Duration `json:"time_duration"`
 }
 
@@ -16,8 +16,8 @@ func NewSession(userId uint64) *Session {
 	value := uuid.NewV4().String()
 	expires := consts.ExpiresDuration
 	return &Session{
-		Value: value,
-		UserId: userId,
+		Value:        value,
+		UserId:       userId,
 		TimeDuration: expires,
 	}
 }

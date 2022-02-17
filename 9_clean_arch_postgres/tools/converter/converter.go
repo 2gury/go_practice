@@ -17,7 +17,7 @@ func AnyToBytesBuffer(i interface{}) (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-func ReadBytes(r io.Reader) ([]byte) {
+func ReadBytes(r io.Reader) []byte {
 	bytes, _ := ioutil.ReadAll(r)
 	return bytes
 }

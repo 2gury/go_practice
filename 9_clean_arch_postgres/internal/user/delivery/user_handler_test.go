@@ -23,18 +23,18 @@ func TestUserHandler_GetUserById(t *testing.T) {
 	t.Parallel()
 
 	user := &models.User{
-		Id: 1,
+		Id:    1,
 		Email: "testmail@kek.ru",
 	}
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inPath string
-		inParams map[string]string
-		outUser *models.User
+		inPath        string
+		inParams      map[string]string
+		outUser       *models.User
 		expStatusCode int
-		expRespBody response.Response
+		expRespBody   response.Response
 	}{
 		{
 			name: "OK",
@@ -97,7 +97,7 @@ func TestUserHandler_GetUserById(t *testing.T) {
 			defer ctrl.Finish()
 			mx := mux.NewRouter()
 			r := httptest.NewRequest("GET", testCase.inPath, nil)
-			r  = mux.SetURLVars(r, testCase.inParams)
+			r = mux.SetURLVars(r, testCase.inParams)
 			w := httptest.NewRecorder()
 			userUse := mock_user.NewMockUserUsecase(ctrl)
 
@@ -134,13 +134,13 @@ func TestUserHandler_RegisterUser(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name                          string
 		mockBehaviourComparePasswords mockBehaviourComparePasswords
-		mockBehaviourCreate mockBehaviourCreate
-		inRequest *Request
-		outLastId uint64
-		expStatusCode int
-		expRespBody response.Response
+		mockBehaviourCreate           mockBehaviourCreate
+		inRequest                     *Request
+		outLastId                     uint64
+		expStatusCode                 int
+		expRespBody                   response.Response
 	}{
 		{
 			name: "OK",
@@ -157,11 +157,11 @@ func TestUserHandler_RegisterUser(t *testing.T) {
 					Return(lastId, nil)
 			},
 			inRequest: &Request{
-				Email: "testmail@kek.ru",
-				Password: "password",
+				Email:            "testmail@kek.ru",
+				Password:         "password",
 				RepeatedPassword: "password",
 			},
-			outLastId: 1,
+			outLastId:     1,
 			expStatusCode: http.StatusOK,
 			expRespBody: response.Response{
 				Body: &response.Body{
@@ -179,11 +179,11 @@ func TestUserHandler_RegisterUser(t *testing.T) {
 			},
 			mockBehaviourCreate: func(userUse *mock_user.MockUserUsecase, lastId uint64) {},
 			inRequest: &Request{
-				Email: "testmail@kek.ru",
-				Password: "password",
+				Email:            "testmail@kek.ru",
+				Password:         "password",
 				RepeatedPassword: "pasword]",
 			},
-			outLastId: 1,
+			outLastId:     1,
 			expStatusCode: errors.Get(consts.CodeUserPasswordsDoNotMatch).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeUserPasswordsDoNotMatch),
@@ -204,11 +204,11 @@ func TestUserHandler_RegisterUser(t *testing.T) {
 					Return(lastId, errors.Get(consts.CodeInternalError))
 			},
 			inRequest: &Request{
-				Email: "testmail@kek.ru",
-				Password: "password",
+				Email:            "testmail@kek.ru",
+				Password:         "password",
 				RepeatedPassword: "password",
 			},
-			outLastId: 0,
+			outLastId:     0,
 			expStatusCode: errors.Get(consts.CodeInternalError).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeInternalError),
@@ -256,14 +256,14 @@ func TestUserHandler_ChangePassword(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
-		mockBehaviourGetById mockBehaviourGetById
+		name                                string
+		mockBehaviourGetById                mockBehaviourGetById
 		mockBehaviourComparePasswordAndHash mockBehaviourComparePasswordAndHash
-		mockBehaviourUpdateUserPassword mockBehaviourUpdateUserPassword
-		inRequest *Request
-		inUserId uint64
-		expStatusCode int
-		expRespBody response.Response
+		mockBehaviourUpdateUserPassword     mockBehaviourUpdateUserPassword
+		inRequest                           *Request
+		inUserId                            uint64
+		expStatusCode                       int
+		expRespBody                         response.Response
 	}{
 		{
 			name: "OK",
@@ -289,7 +289,7 @@ func TestUserHandler_ChangePassword(t *testing.T) {
 				OldPassword: "password",
 				NewPassword: "password",
 			},
-			inUserId: 1,
+			inUserId:      1,
 			expStatusCode: http.StatusOK,
 			expRespBody: response.Response{
 				Body: &response.Body{
@@ -316,7 +316,7 @@ func TestUserHandler_ChangePassword(t *testing.T) {
 				OldPassword: "password",
 				NewPassword: "password",
 			},
-			inUserId: 1,
+			inUserId:      1,
 			expStatusCode: errors.Get(consts.CodeWrongPasswords).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeWrongPasswords),
@@ -331,12 +331,12 @@ func TestUserHandler_ChangePassword(t *testing.T) {
 					Return(nil, errors.Get(consts.CodeUserDoesNotExist))
 			},
 			mockBehaviourComparePasswordAndHash: func(userUse *mock_user.MockUserUsecase, oldPass string) {},
-			mockBehaviourUpdateUserPassword: func(userUse *mock_user.MockUserUsecase) {},
+			mockBehaviourUpdateUserPassword:     func(userUse *mock_user.MockUserUsecase) {},
 			inRequest: &Request{
 				OldPassword: "password",
 				NewPassword: "password",
 			},
-			inUserId: 1,
+			inUserId:      1,
 			expStatusCode: errors.Get(consts.CodeUserDoesNotExist).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeUserDoesNotExist),
@@ -366,7 +366,7 @@ func TestUserHandler_ChangePassword(t *testing.T) {
 				OldPassword: "password",
 				NewPassword: "password",
 			},
-			inUserId: 1,
+			inUserId:      1,
 			expStatusCode: errors.Get(consts.CodeInternalError).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeInternalError),
@@ -418,14 +418,14 @@ func TestUserHandler_DeleteUserById(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
-		mockBehaviourGetById mockBehaviourGetById
+		name                                string
+		mockBehaviourGetById                mockBehaviourGetById
 		mockBehaviourComparePasswordAndHash mockBehaviourComparePasswordAndHash
-		mockBehaviourDeleteUserById mockBehaviourDeleteUserById
-		inUserId uint64
-		inRequest *Request
-		expStatusCode int
-		expRespBody response.Response
+		mockBehaviourDeleteUserById         mockBehaviourDeleteUserById
+		inUserId                            uint64
+		inRequest                           *Request
+		expStatusCode                       int
+		expRespBody                         response.Response
 	}{
 		{
 			name: "OK",
@@ -467,8 +467,8 @@ func TestUserHandler_DeleteUserById(t *testing.T) {
 					Return(nil, errors.Get(consts.CodeUserDoesNotExist))
 			},
 			mockBehaviourComparePasswordAndHash: func(userUse *mock_user.MockUserUsecase, pass string) {},
-			mockBehaviourDeleteUserById: func(userUse *mock_user.MockUserUsecase, userId uint64) {},
-			inUserId: 1,
+			mockBehaviourDeleteUserById:         func(userUse *mock_user.MockUserUsecase, userId uint64) {},
+			inUserId:                            1,
 			inRequest: &Request{
 				Password: "password",
 			},
@@ -492,7 +492,7 @@ func TestUserHandler_DeleteUserById(t *testing.T) {
 					Return(errors.Get(consts.CodeWrongPasswords))
 			},
 			mockBehaviourDeleteUserById: func(userUse *mock_user.MockUserUsecase, userId uint64) {},
-			inUserId: 1,
+			inUserId:                    1,
 			inRequest: &Request{
 				Password: "password",
 			},

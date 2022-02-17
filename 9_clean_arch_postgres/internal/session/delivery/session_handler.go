@@ -16,13 +16,13 @@ import (
 
 type SessionHandler struct {
 	sessionUse session.SessionUsecase
-	userUse user.UserUsecase
+	userUse    user.UserUsecase
 }
 
 func NewSessionHandler(sessUse session.SessionUsecase, userUse user.UserUsecase) *SessionHandler {
 	return &SessionHandler{
 		sessionUse: sessUse,
-		userUse: userUse,
+		userUse:    userUse,
 	}
 }
 
@@ -36,8 +36,8 @@ func (h *SessionHandler) Configure(m *mux.Router, mwManager *mwares.MiddlewareMa
 
 func (h *SessionHandler) Login() http.HandlerFunc {
 	type Request struct {
-		Email            string `json:"email" valid:"email,required"`
-		Password         string `json:"password" valid:"stringlength(6|32),required"`
+		Email    string `json:"email" valid:"email,required"`
+		Password string `json:"password" valid:"stringlength(6|32),required"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -69,14 +69,14 @@ func (h *SessionHandler) Login() http.HandlerFunc {
 
 		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{Body: &response.Body{
-				"status": "OK",
-			},
+			"status": "OK",
+		},
 		})
 	}
 }
 
 func (h *SessionHandler) Logout() http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
 		sessValue, err := contextHelper.GetSessionValue(ctx)
@@ -92,8 +92,8 @@ func (h *SessionHandler) Logout() http.HandlerFunc {
 
 		response.WriteStatusCode(w, ctx, http.StatusOK)
 		json.NewEncoder(w).Encode(response.Response{Body: &response.Body{
-				"status": "OK",
-			},
+			"status": "OK",
+		},
 		})
 	}
 }

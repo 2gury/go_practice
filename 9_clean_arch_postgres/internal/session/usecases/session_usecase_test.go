@@ -16,10 +16,10 @@ func TestSessionUsecase_Create(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inUserId uint64
-		expError *errors.Error
+		inUserId      uint64
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -65,11 +65,11 @@ func TestSessionUsecase_Check(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inSessValue string
-		outSess *models.Session
-		expError *errors.Error
+		inSessValue   string
+		outSess       *models.Session
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -81,7 +81,7 @@ func TestSessionUsecase_Check(t *testing.T) {
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
 			outSess: &models.Session{
-				Value: "hyufsd9sdf9sfsn",
+				Value:  "hyufsd9sdf9sfsn",
 				UserId: 1,
 			},
 			expError: nil,
@@ -95,8 +95,8 @@ func TestSessionUsecase_Check(t *testing.T) {
 					Return(nil, fmt.Errorf("redis error"))
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
-			outSess: nil,
-			expError: errors.Get(consts.CodeInternalError),
+			outSess:     nil,
+			expError:    errors.Get(consts.CodeInternalError),
 		},
 	}
 
@@ -135,7 +135,7 @@ func TestSessionUsecase_Delete(t *testing.T) {
 					Return(nil)
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
-			expError: nil,
+			expError:    nil,
 		},
 		{
 			name: "Error: CodeInternalError",
@@ -146,7 +146,7 @@ func TestSessionUsecase_Delete(t *testing.T) {
 					Return(fmt.Errorf("redis error"))
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
-			expError: errors.Get(consts.CodeInternalError),
+			expError:    errors.Get(consts.CodeInternalError),
 		},
 	}
 

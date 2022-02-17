@@ -16,12 +16,12 @@ type Response struct {
 	Body  *Body         `json:"body,omitempty"`
 }
 
-func WriteStatusCode(w http.ResponseWriter ,ctx context.Context, statusCode int) {
+func WriteStatusCode(w http.ResponseWriter, ctx context.Context, statusCode int) {
 	w.WriteHeader(statusCode)
 	contextHelper.WriteStatusCodeContext(ctx, statusCode)
 }
 
-func WriteErrorResponse(w http.ResponseWriter ,ctx context.Context, err *errors.Error) {
+func WriteErrorResponse(w http.ResponseWriter, ctx context.Context, err *errors.Error) {
 	WriteStatusCode(w, ctx, err.HttpCode)
 	json.NewEncoder(w).Encode(Response{Error: err})
 }

@@ -17,10 +17,10 @@ func TestProductHandler_GetProducts(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		products []*models.Product
-		expError *errors.Error
+		products      []*models.Product
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -30,14 +30,14 @@ func TestProductHandler_GetProducts(t *testing.T) {
 					SelectAll().
 					Return(products, nil)
 			},
-			products: []*models.Product {
+			products: []*models.Product{
 				&models.Product{
-					Id: 1,
+					Id:    1,
 					Title: "WB",
 					Price: 120,
 				},
 				&models.Product{
-					Id: 2,
+					Id:    2,
 					Title: "Ozon",
 					Price: 500,
 				},
@@ -46,7 +46,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, products []*models.Product)  {
+			mockBehaviour: func(productRep *mock_product.MockProductRepository, products []*models.Product) {
 				productRep.
 					EXPECT().
 					SelectAll().
@@ -78,11 +78,11 @@ func TestProductUsecase_Create(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		product *models.Product
-		expError *errors.Error
-		expOutput uint64
+		product       *models.Product
+		expError      *errors.Error
+		expOutput     uint64
 	}{
 		{
 			name: "OK",
@@ -96,7 +96,7 @@ func TestProductUsecase_Create(t *testing.T) {
 				Title: "WB",
 				Price: 120,
 			},
-			expError: nil,
+			expError:  nil,
 			expOutput: 1,
 		},
 		{
@@ -111,7 +111,7 @@ func TestProductUsecase_Create(t *testing.T) {
 				Title: "WB",
 				Price: 120,
 			},
-			expError: errors.Get(consts.CodeInternalError),
+			expError:  errors.Get(consts.CodeInternalError),
 			expOutput: 0,
 		},
 	}
@@ -137,11 +137,11 @@ func TestProductUsecase_GetById(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		productId uint64
-		expError *errors.Error
-		expOutput *models.Product
+		productId     uint64
+		expError      *errors.Error
+		expOutput     *models.Product
 	}{
 		{
 			name: "OK",
@@ -152,9 +152,9 @@ func TestProductUsecase_GetById(t *testing.T) {
 					Return(product, nil)
 			},
 			productId: 1,
-			expError: nil,
+			expError:  nil,
 			expOutput: &models.Product{
-				Id: 1,
+				Id:    1,
 				Title: "WB",
 				Price: 120,
 			},
@@ -168,7 +168,7 @@ func TestProductUsecase_GetById(t *testing.T) {
 					Return(nil, sql.ErrNoRows)
 			},
 			productId: 1000,
-			expError: errors.Get(consts.CodeProductDoesNotExist),
+			expError:  errors.Get(consts.CodeProductDoesNotExist),
 			expOutput: nil,
 		},
 		{
@@ -180,7 +180,7 @@ func TestProductUsecase_GetById(t *testing.T) {
 					Return(nil, fmt.Errorf("repository error"))
 			},
 			productId: 1,
-			expError: errors.Get(consts.CodeInternalError),
+			expError:  errors.Get(consts.CodeInternalError),
 			expOutput: nil,
 		},
 	}
@@ -207,12 +207,12 @@ func TestProductUsecase_UpdateById(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
-		mockBehaviourGetById mockBehaviourGetById
+		name                    string
+		mockBehaviourGetById    mockBehaviourGetById
 		mockBehaviourUpdateById mockBehaviourUpdateById
-		productId uint64
-		product *models.Product
-		expError *errors.Error
+		productId               uint64
+		product                 *models.Product
+		expError                *errors.Error
 	}{
 		{
 			name: "OK",
@@ -220,7 +220,7 @@ func TestProductUsecase_UpdateById(t *testing.T) {
 				productRep.
 					EXPECT().
 					SelectById(productId).
-					Return(nil ,nil)
+					Return(nil, nil)
 			},
 			mockBehaviourUpdateById: func(productRep *mock_product.MockProductRepository, productId uint64, product *models.Product) {
 				productRep.
@@ -241,7 +241,7 @@ func TestProductUsecase_UpdateById(t *testing.T) {
 				productRep.
 					EXPECT().
 					SelectById(productId).
-					Return(nil ,nil)
+					Return(nil, nil)
 			},
 			mockBehaviourUpdateById: func(productRep *mock_product.MockProductRepository, productId uint64, product *models.Product) {
 				productRep.
@@ -280,12 +280,12 @@ func TestProductUsecase_DeleteById(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
-		mockBehaviourGetById mockBehaviourGetById
+		name                    string
+		mockBehaviourGetById    mockBehaviourGetById
 		mockBehaviourDeleteById mockBehaviourDeleteById
-		productId uint64
-		product *models.Product
-		expError *errors.Error
+		productId               uint64
+		product                 *models.Product
+		expError                *errors.Error
 	}{
 		{
 			name: "OK",
@@ -293,7 +293,7 @@ func TestProductUsecase_DeleteById(t *testing.T) {
 				productRep.
 					EXPECT().
 					SelectById(productId).
-					Return(nil ,nil)
+					Return(nil, nil)
 			},
 			mockBehaviourDeleteById: func(productRep *mock_product.MockProductRepository, productId uint64) {
 				productRep.
@@ -302,7 +302,7 @@ func TestProductUsecase_DeleteById(t *testing.T) {
 					Return(nil)
 			},
 			productId: 1,
-			expError: nil,
+			expError:  nil,
 		},
 		{
 			name: "Error: CodeInternalError",
@@ -310,7 +310,7 @@ func TestProductUsecase_DeleteById(t *testing.T) {
 				productRep.
 					EXPECT().
 					SelectById(productId).
-					Return(nil ,nil)
+					Return(nil, nil)
 			},
 			mockBehaviourDeleteById: func(productRep *mock_product.MockProductRepository, productId uint64) {
 				productRep.

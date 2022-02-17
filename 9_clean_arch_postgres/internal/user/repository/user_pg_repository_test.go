@@ -20,11 +20,11 @@ func TestUserPgRepository_SelectById(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inUserId uint64
-		outUser *models.User
-		expError error
+		inUserId      uint64
+		outUser       *models.User
+		expError      error
 	}{
 		{
 			name: "OK",
@@ -35,10 +35,10 @@ func TestUserPgRepository_SelectById(t *testing.T) {
 			},
 			inUserId: 1,
 			outUser: &models.User{
-				Id:    1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "dsf32g2434g",
-				Role: "user",
+				Role:     "user",
 			},
 			expError: nil,
 		},
@@ -48,7 +48,7 @@ func TestUserPgRepository_SelectById(t *testing.T) {
 				mock.ExpectQuery(`SELECT`).WithArgs(usrId).WillReturnError(fmt.Errorf("sql error"))
 			},
 			inUserId: 1,
-			outUser: nil,
+			outUser:  nil,
 			expError: fmt.Errorf("sql error"),
 		},
 	}
@@ -80,11 +80,11 @@ func TestUserPgRepository_Insert(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inUser *models.User
-		outUserId uint64
-		expError error
+		inUser        *models.User
+		outUserId     uint64
+		expError      error
 	}{
 		{
 			name: "OK",
@@ -97,12 +97,12 @@ func TestUserPgRepository_Insert(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			inUser: &models.User{
-				Email: "testmail@kek.ru",
+				Email:    "testmail@kek.ru",
 				Password: "dsf32g2434g",
-				Role: "user",
+				Role:     "user",
 			},
 			outUserId: 1,
-			expError: nil,
+			expError:  nil,
 		},
 		{
 			name: "Error: sql  error",
@@ -114,12 +114,12 @@ func TestUserPgRepository_Insert(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			inUser: &models.User{
-				Email: "testmail@kek.ru",
+				Email:    "testmail@kek.ru",
 				Password: "dsf32g2434g",
-				Role: "user",
+				Role:     "user",
 			},
 			outUserId: 0,
-			expError: fmt.Errorf("sql error"),
+			expError:  fmt.Errorf("sql error"),
 		},
 	}
 
@@ -150,11 +150,11 @@ func TestUserPgRepository_SelectByEmail(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inUserEmail string
-		outUser *models.User
-		expError error
+		inUserEmail   string
+		outUser       *models.User
+		expError      error
 	}{
 		{
 			name: "OK",
@@ -165,10 +165,10 @@ func TestUserPgRepository_SelectByEmail(t *testing.T) {
 			},
 			inUserEmail: "testmail@kek.ru",
 			outUser: &models.User{
-				Id:    1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "dsf32g2434g",
-				Role: "user",
+				Role:     "user",
 			},
 			expError: nil,
 		},
@@ -178,8 +178,8 @@ func TestUserPgRepository_SelectByEmail(t *testing.T) {
 				mock.ExpectQuery(`SELECT`).WithArgs(usrEmail).WillReturnError(fmt.Errorf("sql error"))
 			},
 			inUserEmail: "testmail@kek.ru",
-			outUser: nil,
-			expError: fmt.Errorf("sql error"),
+			outUser:     nil,
+			expError:    fmt.Errorf("sql error"),
 		},
 	}
 
@@ -210,11 +210,11 @@ func TestUserPgRepository_UpdatePassword(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inUser *models.User
-		outUser *models.User
-		expError error
+		inUser        *models.User
+		outUser       *models.User
+		expError      error
 	}{
 		{
 			name: "OK",
@@ -226,8 +226,8 @@ func TestUserPgRepository_UpdatePassword(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			inUser: &models.User{
-				Id: 1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "8dfs8seg9dfg",
 			},
 			expError: nil,
@@ -260,10 +260,10 @@ func TestUserPgRepository_DeleteById(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inUserId uint64
-		expError error
+		inUserId      uint64
+		expError      error
 	}{
 		{
 			name: "OK",

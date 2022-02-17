@@ -20,8 +20,8 @@ import (
 
 func TestSessionHandler_Login(t *testing.T) {
 	type Request struct {
-		Email            string `json:"email" valid:"email,required"`
-		Password         string `json:"password" valid:"stringlength(6|32),required"`
+		Email    string `json:"email" valid:"email,required"`
+		Password string `json:"password" valid:"stringlength(6|32),required"`
 	}
 
 	type mockBehaviourUserUseGetByEmail func(userUse *mock_user.MockUserUsecase, email string, usr *models.User)
@@ -30,15 +30,15 @@ func TestSessionHandler_Login(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
-		userUseGetByEmail mockBehaviourUserUseGetByEmail
+		name                          string
+		userUseGetByEmail             mockBehaviourUserUseGetByEmail
 		userUseComparePasswordAndHash mockBehaviourUserUseComparePasswordAndHash
-		sessUseCreate mockBehaviourSessionUseCreate
-		inRequest *Request
-		outUser *models.User
-		outSession *models.Session
-		expStatusCode int
-		expRespBody response.Response
+		sessUseCreate                 mockBehaviourSessionUseCreate
+		inRequest                     *Request
+		outUser                       *models.User
+		outSession                    *models.Session
+		expStatusCode                 int
+		expRespBody                   response.Response
 	}{
 		{
 			name: "OK",
@@ -65,16 +65,16 @@ func TestSessionHandler_Login(t *testing.T) {
 				"test_password",
 			},
 			outUser: &models.User{
-				Id: 1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "fsd8fds8sdfd9",
-				Role: "user",
+				Role:     "user",
 			},
-			outSession: models.NewSession(1),
+			outSession:    models.NewSession(1),
 			expStatusCode: http.StatusOK,
 			expRespBody: response.Response{Body: &response.Body{
-					"status": "OK",
-				},
+				"status": "OK",
+			},
 			},
 		},
 		{
@@ -97,12 +97,12 @@ func TestSessionHandler_Login(t *testing.T) {
 				"test_password",
 			},
 			outUser: &models.User{
-				Id: 1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "fsd8fds8sdfd9",
-				Role: "user",
+				Role:     "user",
 			},
-			outSession: models.NewSession(1),
+			outSession:    models.NewSession(1),
 			expStatusCode: errors.Get(consts.CodeWrongPasswords).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeWrongPasswords),
@@ -117,18 +117,18 @@ func TestSessionHandler_Login(t *testing.T) {
 					Return(nil, errors.Get(consts.CodeUserDoesNotExist))
 			},
 			userUseComparePasswordAndHash: func(userUse *mock_user.MockUserUsecase, pass string, usr *models.User) {},
-			sessUseCreate: func(sessUse *mock_session.MockSessionUsecase, usrId uint64, sess *models.Session) {},
+			sessUseCreate:                 func(sessUse *mock_session.MockSessionUsecase, usrId uint64, sess *models.Session) {},
 			inRequest: &Request{
 				"testmail@kek.ru",
 				"test_password",
 			},
 			outUser: &models.User{
-				Id: 1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "fsd8fds8sdfd9",
-				Role: "user",
+				Role:     "user",
 			},
-			outSession: models.NewSession(1),
+			outSession:    models.NewSession(1),
 			expStatusCode: errors.Get(consts.CodeUserDoesNotExist).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeUserDoesNotExist),
@@ -159,12 +159,12 @@ func TestSessionHandler_Login(t *testing.T) {
 				"test_password",
 			},
 			outUser: &models.User{
-				Id: 1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "fsd8fds8sdfd9",
-				Role: "user",
+				Role:     "user",
 			},
-			outSession: models.NewSession(1),
+			outSession:    models.NewSession(1),
 			expStatusCode: errors.Get(consts.CodeInternalError).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeInternalError),
@@ -184,7 +184,7 @@ func TestSessionHandler_Login(t *testing.T) {
 
 			testCase.userUseGetByEmail(userUse, testCase.inRequest.Email, testCase.outUser)
 			testCase.userUseComparePasswordAndHash(userUse, testCase.inRequest.Password, testCase.outUser)
-			testCase.sessUseCreate(sessUse, testCase.outUser.Id ,testCase.outSession)
+			testCase.sessUseCreate(sessUse, testCase.outUser.Id, testCase.outSession)
 
 			sessHandler := NewSessionHandler(sessUse, userUse)
 			sessHandler.Configure(mx, nil)
@@ -208,11 +208,11 @@ func TestSessionHandler_Logout(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inSession *models.Session
+		inSession     *models.Session
 		expStatusCode int
-		expRespBody response.Response
+		expRespBody   response.Response
 	}{
 		{
 			name: "OK",
@@ -222,11 +222,11 @@ func TestSessionHandler_Logout(t *testing.T) {
 					Delete(sessValue).
 					Return(nil)
 			},
-			inSession: models.NewSession(1),
+			inSession:     models.NewSession(1),
 			expStatusCode: http.StatusOK,
 			expRespBody: response.Response{Body: &response.Body{
-					"status": "OK",
-				},
+				"status": "OK",
+			},
 			},
 		},
 		{
@@ -237,7 +237,7 @@ func TestSessionHandler_Logout(t *testing.T) {
 					Delete(sessValue).
 					Return(errors.Get(consts.CodeInternalError))
 			},
-			inSession: models.NewSession(1),
+			inSession:     models.NewSession(1),
 			expStatusCode: errors.Get(consts.CodeInternalError).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeInternalError),

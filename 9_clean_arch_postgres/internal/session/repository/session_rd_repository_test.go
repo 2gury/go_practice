@@ -17,10 +17,10 @@ func TestSessionRdRepository_Get(t *testing.T) {
 	defer rdConn.Close()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inSession *models.Session
-		expError error
+		inSession     *models.Session
+		expError      error
 	}{
 		{
 			name: "OK",
@@ -28,7 +28,7 @@ func TestSessionRdRepository_Get(t *testing.T) {
 				conn.Command("GET", sessionValue).Expect(session)
 			},
 			inSession: models.NewSession(1),
-			expError: nil,
+			expError:  nil,
 		},
 	}
 
@@ -54,10 +54,10 @@ func TestSessionRdRepository_Create(t *testing.T) {
 	defer rdConn.Close()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inSession *models.Session
-		expError error
+		inSession     *models.Session
+		expError      error
 	}{
 		{
 			name: "OK",
@@ -65,7 +65,7 @@ func TestSessionRdRepository_Create(t *testing.T) {
 				conn.Command("SET", sessionValue, session, "EX", timeExpire).Expect("OK")
 			},
 			inSession: models.NewSession(1),
-			expError: nil,
+			expError:  nil,
 		},
 		{
 			name: "Error: redis not OK",
@@ -73,7 +73,7 @@ func TestSessionRdRepository_Create(t *testing.T) {
 				conn.Command("SET", sessionValue, session, "EX", timeExpire).Expect("KEK")
 			},
 			inSession: models.NewSession(1),
-			expError: fmt.Errorf("redis: not OK"),
+			expError:  fmt.Errorf("redis: not OK"),
 		},
 	}
 
@@ -98,10 +98,10 @@ func TestSessionRdRepository_Delete(t *testing.T) {
 	defer rdConn.Close()
 
 	testTable := []struct {
-		name string
-		mockBehaviour mockBehaviour
+		name           string
+		mockBehaviour  mockBehaviour
 		inSessionValue string
-		expError error
+		expError       error
 	}{
 		{
 			name: "OK",
@@ -109,7 +109,7 @@ func TestSessionRdRepository_Delete(t *testing.T) {
 				conn.Command("DEL", sessionValue).Expect([]byte("1"))
 			},
 			inSessionValue: "session:dsf8gkmw34mkdrg9",
-			expError: nil,
+			expError:       nil,
 		},
 		{
 			name: "OK",
@@ -117,7 +117,7 @@ func TestSessionRdRepository_Delete(t *testing.T) {
 				conn.Command("DEL", sessionValue).ExpectError(fmt.Errorf("redis: not OK"))
 			},
 			inSessionValue: "session:dsf8gkmw34mkdrg9",
-			expError: fmt.Errorf("redis: not OK"),
+			expError:       fmt.Errorf("redis: not OK"),
 		},
 	}
 

@@ -20,28 +20,28 @@ func TestProductPgRepository_SelectAll(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
-		mockBehaviour mockBehaviour
+		name           string
+		mockBehaviour  mockBehaviour
 		outputProducts []*models.Product
-		expError error
+		expError       error
 	}{
 		{
 			name: "OK",
 			mockBehaviour: func(mock sqlmock.Sqlmock, products []*models.Product) {
 				rows := sqlmock.NewRows([]string{"id", "title", "price"})
-				for _, product :=  range products {
-				rows.AddRow(product.Id, product.Title,  product.Price)
-			}
-			mock.ExpectQuery(`SELECT`).WillReturnRows(rows)
-		},
-			outputProducts: []*models.Product {
+				for _, product := range products {
+					rows.AddRow(product.Id, product.Title, product.Price)
+				}
+				mock.ExpectQuery(`SELECT`).WillReturnRows(rows)
+			},
+			outputProducts: []*models.Product{
 				&models.Product{
-					Id: 1,
+					Id:    1,
 					Title: "WB",
 					Price: 120,
 				},
 				&models.Product{
-					Id: 2,
+					Id:    2,
 					Title: "Ozon",
 					Price: 500,
 				},
@@ -77,21 +77,21 @@ func TestProductPgRepository_SelectById(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
-		mockBehaviour mockBehaviour
+		name           string
+		mockBehaviour  mockBehaviour
 		inputProductId uint64
-		outputProduct *models.Product
-		expError error
+		outputProduct  *models.Product
+		expError       error
 	}{
 		{
 			name: "OK",
 			mockBehaviour: func(mock sqlmock.Sqlmock, inProductId uint64, outProduct *models.Product) {
 				rows := sqlmock.NewRows([]string{"id", "title", "price"})
-				rows.AddRow(outProduct.Id, outProduct.Title,  outProduct.Price)
+				rows.AddRow(outProduct.Id, outProduct.Title, outProduct.Price)
 				mock.ExpectQuery(`SELECT`).WithArgs(inProductId).WillReturnRows(rows)
 			},
 			inputProductId: 1,
-			outputProduct:&models.Product{
+			outputProduct: &models.Product{
 				Id:    1,
 				Title: "WB",
 				Price: 120,
@@ -104,8 +104,8 @@ func TestProductPgRepository_SelectById(t *testing.T) {
 				mock.ExpectQuery(`SELECT`).WithArgs(inProductId).WillReturnError(sql.ErrNoRows)
 			},
 			inputProductId: 1000,
-			outputProduct: nil,
-			expError: sql.ErrNoRows,
+			outputProduct:  nil,
+			expError:       sql.ErrNoRows,
 		},
 	}
 
@@ -136,11 +136,11 @@ func TestProductPgRepository_Insert(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
-		mockBehaviour mockBehaviour
-		inputProduct *models.Product
+		name            string
+		mockBehaviour   mockBehaviour
+		inputProduct    *models.Product
 		outputProductId uint64
-		expError error
+		expError        error
 	}{
 		{
 			name: "OK",
@@ -157,7 +157,7 @@ func TestProductPgRepository_Insert(t *testing.T) {
 				Price: 120,
 			},
 			outputProductId: 1,
-			expError: nil,
+			expError:        nil,
 		},
 		{
 			name: "Error: No unique",
@@ -173,7 +173,7 @@ func TestProductPgRepository_Insert(t *testing.T) {
 				Price: 120,
 			},
 			outputProductId: 0,
-			expError: fmt.Errorf("error no unique"),
+			expError:        fmt.Errorf("error no unique"),
 		},
 	}
 
@@ -204,11 +204,11 @@ func TestProductPgRepository_UpdateById(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
-		mockBehaviour mockBehaviour
+		name           string
+		mockBehaviour  mockBehaviour
 		inputProductId uint64
-		inputProduct *models.Product
-		expError error
+		inputProduct   *models.Product
+		expError       error
 	}{
 		{
 			name: "OK",
@@ -254,10 +254,10 @@ func TestProductPgRepository_DeleteById(t *testing.T) {
 	defer db.Close()
 
 	testTable := []struct {
-		name string
-		mockBehaviour mockBehaviour
+		name           string
+		mockBehaviour  mockBehaviour
 		inputProductId uint64
-		expError error
+		expError       error
 	}{
 		{
 			name: "OK",
@@ -269,7 +269,7 @@ func TestProductPgRepository_DeleteById(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			inputProductId: 1,
-			expError: nil,
+			expError:       nil,
 		},
 	}
 

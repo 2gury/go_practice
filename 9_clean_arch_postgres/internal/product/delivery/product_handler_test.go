@@ -20,25 +20,25 @@ func TestProductHandler_GetProducts(t *testing.T) {
 	type mockBehaviour func(s *mock_product.MockProductUsecase)
 	t.Parallel()
 
-	products := []*models.Product {
+	products := []*models.Product{
 		&models.Product{
-			Id: 1,
+			Id:    1,
 			Title: "WB",
 			Price: 120,
 		},
 		&models.Product{
-			Id: 2,
+			Id:    2,
 			Title: "Ozon",
 			Price: 500,
 		},
 	}
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inPath string
+		inPath        string
 		expStatusCode int
-		expRespBody response.Response
+		expRespBody   response.Response
 	}{
 		{
 			name: "OK",
@@ -48,7 +48,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 					List().
 					Return(products, nil)
 			},
-			inPath: "/api/v1/product",
+			inPath:        "/api/v1/product",
 			expStatusCode: http.StatusOK,
 			expRespBody: response.Response{
 				Body: &response.Body{
@@ -64,7 +64,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 					List().
 					Return(nil, errors.Get(consts.CodeInternalError))
 			},
-			inPath: "/api/v1/product",
+			inPath:        "/api/v1/product",
 			expStatusCode: errors.Get(consts.CodeInternalError).HttpCode,
 			expRespBody: response.Response{
 				Error: errors.Get(consts.CodeInternalError),
@@ -102,19 +102,19 @@ func TestProductHandler_GetProductById(t *testing.T) {
 	type mockBehaviour func(s *mock_product.MockProductUsecase, prodId uint64)
 	t.Parallel()
 
-	product := &models.Product {
-		Id: 1,
+	product := &models.Product{
+		Id:    1,
 		Title: "WB",
 		Price: 120,
 	}
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inPath string
-		inParams map[string]string
+		inPath        string
+		inParams      map[string]string
 		expStatusCode int
-		expRespBody response.Response
+		expRespBody   response.Response
 	}{
 		{
 			name: "OK",
@@ -125,7 +125,7 @@ func TestProductHandler_GetProductById(t *testing.T) {
 					Return(product, nil)
 			},
 			inPath: "/api/v1/product/1",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1",
 			},
 			expStatusCode: http.StatusOK,
@@ -144,7 +144,7 @@ func TestProductHandler_GetProductById(t *testing.T) {
 					Return(nil, errors.Get(consts.CodeProductDoesNotExist))
 			},
 			inPath: "/api/v1/product/1000",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1000",
 			},
 			expStatusCode: errors.Get(consts.CodeProductDoesNotExist).HttpCode,
@@ -161,7 +161,7 @@ func TestProductHandler_GetProductById(t *testing.T) {
 					Return(nil, errors.Get(consts.CodeInternalError))
 			},
 			inPath: "/api/v1/product/1",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1",
 			},
 			expStatusCode: errors.Get(consts.CodeInternalError).HttpCode,
@@ -177,7 +177,7 @@ func TestProductHandler_GetProductById(t *testing.T) {
 			defer ctrl.Finish()
 			mx := mux.NewRouter()
 			r := httptest.NewRequest("GET", testCase.inPath, nil)
-			r  = mux.SetURLVars(r, testCase.inParams)
+			r = mux.SetURLVars(r, testCase.inParams)
 			w := httptest.NewRecorder()
 			productUse := mock_product.NewMockProductUsecase(ctrl)
 
@@ -206,12 +206,12 @@ func TestProductHandler_AddProduct(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inPath string
-		inProduct *models.Product
+		inPath        string
+		inProduct     *models.Product
 		expStatusCode int
-		expRespBody response.Response
+		expRespBody   response.Response
 	}{
 		{
 			name: "OK",
@@ -222,7 +222,7 @@ func TestProductHandler_AddProduct(t *testing.T) {
 					Return(uint64(1), nil)
 			},
 			inPath: "/api/v1/product/",
-			inProduct: &models.Product {
+			inProduct: &models.Product{
 				Title: "WB",
 				Price: 120,
 			},
@@ -242,7 +242,7 @@ func TestProductHandler_AddProduct(t *testing.T) {
 					Return(uint64(0), errors.Get(consts.CodeBadRequest))
 			},
 			inPath: "/api/v1/product/",
-			inProduct: &models.Product {
+			inProduct: &models.Product{
 				Title: "WB",
 				Price: -100,
 			},
@@ -260,7 +260,7 @@ func TestProductHandler_AddProduct(t *testing.T) {
 					Return(uint64(0), errors.Get(consts.CodeInternalError))
 			},
 			inPath: "/api/v1/product/",
-			inProduct: &models.Product {
+			inProduct: &models.Product{
 				Title: "Ozon",
 				Price: 500,
 			},
@@ -303,13 +303,13 @@ func TestProductHandler_UpdateProductById(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inPath string
-		inParams map[string]string
-		inProduct *models.Product
+		inPath        string
+		inParams      map[string]string
+		inProduct     *models.Product
 		expStatusCode int
-		expRespBody response.Response
+		expRespBody   response.Response
 	}{
 		{
 			name: "OK",
@@ -320,10 +320,10 @@ func TestProductHandler_UpdateProductById(t *testing.T) {
 					Return(nil)
 			},
 			inPath: "/api/v1/product/1",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1",
 			},
-			inProduct: &models.Product {
+			inProduct: &models.Product{
 				Title: "WB",
 				Price: 120,
 			},
@@ -343,10 +343,10 @@ func TestProductHandler_UpdateProductById(t *testing.T) {
 					Return(errors.Get(consts.CodeProductDoesNotExist))
 			},
 			inPath: "/api/v1/product/1000",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1000",
 			},
-			inProduct: &models.Product {
+			inProduct: &models.Product{
 				Title: "WB",
 				Price: 500,
 			},
@@ -364,10 +364,10 @@ func TestProductHandler_UpdateProductById(t *testing.T) {
 					Return(errors.Get(consts.CodeBadRequest))
 			},
 			inPath: "/api/v1/product/1000",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1",
 			},
-			inProduct: &models.Product {
+			inProduct: &models.Product{
 				Title: "WB",
 				Price: -1000,
 			},
@@ -385,10 +385,10 @@ func TestProductHandler_UpdateProductById(t *testing.T) {
 					Return(errors.Get(consts.CodeInternalError))
 			},
 			inPath: "/api/v1/product/1000",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1",
 			},
-			inProduct: &models.Product {
+			inProduct: &models.Product{
 				Title: "WB",
 				Price: 500,
 			},
@@ -405,7 +405,7 @@ func TestProductHandler_UpdateProductById(t *testing.T) {
 			defer ctrl.Finish()
 			mx := mux.NewRouter()
 			r := httptest.NewRequest("POST", testCase.inPath, converter.AnyBytesToString(testCase.inProduct))
-			r  = mux.SetURLVars(r, testCase.inParams)
+			r = mux.SetURLVars(r, testCase.inParams)
 			w := httptest.NewRecorder()
 			productUse := mock_product.NewMockProductUsecase(ctrl)
 
@@ -434,13 +434,13 @@ func TestProductHandler_DeleteProductById(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name string
+		name          string
 		mockBehaviour mockBehaviour
-		inPath string
-		inParams map[string]string
-		inProduct *models.Product
+		inPath        string
+		inParams      map[string]string
+		inProduct     *models.Product
 		expStatusCode int
-		expRespBody response.Response
+		expRespBody   response.Response
 	}{
 		{
 			name: "OK",
@@ -451,7 +451,7 @@ func TestProductHandler_DeleteProductById(t *testing.T) {
 					Return(nil)
 			},
 			inPath: "/api/v1/product/1",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1",
 			},
 			expStatusCode: http.StatusOK,
@@ -470,7 +470,7 @@ func TestProductHandler_DeleteProductById(t *testing.T) {
 					Return(errors.Get(consts.CodeProductDoesNotExist))
 			},
 			inPath: "/api/v1/product/1000",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1000",
 			},
 			expStatusCode: errors.Get(consts.CodeProductDoesNotExist).HttpCode,
@@ -487,7 +487,7 @@ func TestProductHandler_DeleteProductById(t *testing.T) {
 					Return(errors.Get(consts.CodeInternalError))
 			},
 			inPath: "/api/v1/product/1",
-			inParams: map[string]string {
+			inParams: map[string]string{
 				"id": "1",
 			},
 			expStatusCode: errors.Get(consts.CodeInternalError).HttpCode,
@@ -503,7 +503,7 @@ func TestProductHandler_DeleteProductById(t *testing.T) {
 			defer ctrl.Finish()
 			mx := mux.NewRouter()
 			r := httptest.NewRequest("DELETE", testCase.inPath, converter.AnyBytesToString(testCase.inProduct))
-			r  = mux.SetURLVars(r, testCase.inParams)
+			r = mux.SetURLVars(r, testCase.inParams)
 			w := httptest.NewRecorder()
 			productUse := mock_product.NewMockProductUsecase(ctrl)
 
@@ -526,4 +526,3 @@ func TestProductHandler_DeleteProductById(t *testing.T) {
 		})
 	}
 }
-

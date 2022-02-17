@@ -19,9 +19,9 @@ func TestUserUsecase_GetById(t *testing.T) {
 	testTable := []struct {
 		name          string
 		mockBehaviour mockBehaviour
-		inUserId uint64
-		outUser *models.User
-		expError *errors.Error
+		inUserId      uint64
+		outUser       *models.User
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -33,8 +33,8 @@ func TestUserUsecase_GetById(t *testing.T) {
 			},
 			inUserId: 1,
 			outUser: &models.User{
-				Id: 1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "213f4g34gs3",
 			},
 			expError: nil,
@@ -86,9 +86,9 @@ func TestUserUsecase_GetByEmail(t *testing.T) {
 	testTable := []struct {
 		name          string
 		mockBehaviour mockBehaviour
-		inUserEmail string
-		outUser *models.User
-		expError *errors.Error
+		inUserEmail   string
+		outUser       *models.User
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -100,8 +100,8 @@ func TestUserUsecase_GetByEmail(t *testing.T) {
 			},
 			inUserEmail: "testmail@kek.ru",
 			outUser: &models.User{
-				Id: 1,
-				Email: "testmail@kek.ru",
+				Id:       1,
+				Email:    "testmail@kek.ru",
 				Password: "213f4g34gs3",
 			},
 			expError: nil,
@@ -115,7 +115,7 @@ func TestUserUsecase_GetByEmail(t *testing.T) {
 					Return(nil, sql.ErrNoRows)
 			},
 			inUserEmail: "testmail@kek.ru",
-			expError: errors.Get(consts.CodeUserDoesNotExist),
+			expError:    errors.Get(consts.CodeUserDoesNotExist),
 		},
 		{
 			name: "Error: CodeInternalError",
@@ -126,7 +126,7 @@ func TestUserUsecase_GetByEmail(t *testing.T) {
 					Return(nil, fmt.Errorf("sql error"))
 			},
 			inUserEmail: "testmail@kek.ru",
-			expError: errors.Get(consts.CodeInternalError),
+			expError:    errors.Get(consts.CodeInternalError),
 		},
 	}
 
@@ -153,9 +153,9 @@ func TestUserUsecase_Create(t *testing.T) {
 	testTable := []struct {
 		name          string
 		mockBehaviour mockBehaviour
-		inUser *models.User
-		outLastId uint64
-		expError *errors.Error
+		inUser        *models.User
+		outLastId     uint64
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -166,11 +166,11 @@ func TestUserUsecase_Create(t *testing.T) {
 					Return(lastId, nil)
 			},
 			inUser: &models.User{
-				Email: "testmail@kek.ru",
+				Email:    "testmail@kek.ru",
 				Password: "213f4g34gs3",
 			},
 			outLastId: 1,
-			expError: nil,
+			expError:  nil,
 		},
 		{
 			name: "Error: CodeInternalError",
@@ -181,11 +181,11 @@ func TestUserUsecase_Create(t *testing.T) {
 					Return(lastId, fmt.Errorf("sql error"))
 			},
 			inUser: &models.User{
-				Email: "testmail@kek.ru",
+				Email:    "testmail@kek.ru",
 				Password: "213f4g34gs3",
 			},
 			outLastId: 0,
-			expError: errors.Get(consts.CodeInternalError),
+			expError:  errors.Get(consts.CodeInternalError),
 		},
 	}
 
@@ -212,8 +212,8 @@ func TestUserUsecase_UpdateUserPassword(t *testing.T) {
 	testTable := []struct {
 		name          string
 		mockBehaviour mockBehaviour
-		inUser *models.User
-		expError *errors.Error
+		inUser        *models.User
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -224,7 +224,7 @@ func TestUserUsecase_UpdateUserPassword(t *testing.T) {
 					Return(nil)
 			},
 			inUser: &models.User{
-				Email: "testmail@kek.ru",
+				Email:    "testmail@kek.ru",
 				Password: "213f4g34gs3",
 			},
 			expError: nil,
@@ -238,7 +238,7 @@ func TestUserUsecase_UpdateUserPassword(t *testing.T) {
 					Return(fmt.Errorf("sql error"))
 			},
 			inUser: &models.User{
-				Email: "testmail@kek.ru",
+				Email:    "testmail@kek.ru",
 				Password: "213f4g34gs3",
 			},
 			expError: errors.Get(consts.CodeInternalError),
@@ -267,8 +267,8 @@ func TestUserUsecase_DeleteUserById(t *testing.T) {
 	testTable := []struct {
 		name          string
 		mockBehaviour mockBehaviour
-		inUserId uint64
-		expError *errors.Error
+		inUserId      uint64
+		expError      *errors.Error
 	}{
 		{
 			name: "OK",
@@ -313,10 +313,10 @@ func TestUserUsecase_ComparePasswords(t *testing.T) {
 	t.Parallel()
 
 	testTable := []struct {
-		name          string
-		inUser *models.User
+		name       string
+		inUser     *models.User
 		inPassword string
-		expError *errors.Error
+		expError   *errors.Error
 	}{
 		{
 			name: "OK",
@@ -324,7 +324,7 @@ func TestUserUsecase_ComparePasswords(t *testing.T) {
 				Password: "$2a$14$oXhLcYUgwrsOSiReOtDt4u.TSvY1kM5U4K4.hDp5rBpohbShk.gny",
 			},
 			inPassword: "password",
-			expError: nil,
+			expError:   nil,
 		},
 		{
 			name: "Error: CodeWrongPasswords",
@@ -332,7 +332,7 @@ func TestUserUsecase_ComparePasswords(t *testing.T) {
 				Password: "kek",
 			},
 			inPassword: "password",
-			expError: errors.Get(consts.CodeWrongPasswords),
+			expError:   errors.Get(consts.CodeWrongPasswords),
 		},
 	}
 
