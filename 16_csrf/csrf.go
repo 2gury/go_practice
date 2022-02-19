@@ -102,7 +102,6 @@ func Root(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	tmpl := template.New("main")
 	tmpl, _ = tmpl.Parse(messagesTmpl)
 	tmpl.Execute(w, struct {
