@@ -1,0 +1,9 @@
+version: '3'
+
+# docker rm $(docker ps -a -q) && docker volume prune -f
+
+services:
+  consul:
+    image: consul
+    ports:
+      - "8500:8500"
