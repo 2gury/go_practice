@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+//protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative  internal/session/delivery/grpc/session.proto
+
+package protobuf_session;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "/grpc";
+
+message Session {
+  string Value = 1;
+  uint64 UserId = 2;
+  google.protobuf.Duration TimeDuration = 3;
+}
+
+message SessionValue {
+  string Value = 1;
+}
+
+service SessionService {
+  rpc Create(Session) returns (google.protobuf.Empty) {}
+  rpc Check(SessionValue) returns (Session) {}
+  rpc Delete(SessionValue) returns (google.protobuf.Empty) {}
+}
+
+
