@@ -11,22 +11,22 @@ import (
 
 func CreateCookie(sess *models.Session) *http.Cookie {
 	return &http.Cookie{
-		Name: consts.SessionName,
-		Value: sess.Value,
-		Path: "/",
+		Name:     consts.SessionName,
+		Value:    sess.Value,
+		Path:     "/",
 		SameSite: http.SameSiteStrictMode,
-		Expires: time.Now().Add(sess.TimeDuration),
+		Expires:  time.Now().Add(sess.TimeDuration),
 		HttpOnly: true,
 	}
 }
 
 func CreateExpiredCookie(cookie *http.Cookie) *http.Cookie {
 	return &http.Cookie{
-		Name: consts.SessionName,
-		Value: cookie.Value,
-		Path: "/",
+		Name:     consts.SessionName,
+		Value:    cookie.Value,
+		Path:     "/",
 		SameSite: http.SameSiteStrictMode,
-		Expires: time.Now().AddDate(0, 0, -1),
+		Expires:  time.Now().AddDate(0, 0, -1),
 		HttpOnly: true,
 	}
 }

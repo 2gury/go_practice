@@ -110,7 +110,7 @@ func (h *ProductHandler) AddProduct() http.HandlerFunc {
 			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		product := models.Product{
+		product := &models.Product{
 			Title: req.Title,
 			Price: req.Price,
 		}
@@ -151,7 +151,7 @@ func (h *ProductHandler) UpdateProductById() http.HandlerFunc {
 			response.WriteErrorResponse(w, ctx, err)
 			return
 		}
-		product := models.Product{
+		product := &models.Product{
 			Title: req.Title,
 			Price: req.Price,
 		}

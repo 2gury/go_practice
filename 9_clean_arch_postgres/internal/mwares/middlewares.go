@@ -16,44 +16,47 @@ import (
 
 type MiddlewareManager struct {
 	sessionUse session.SessionUsecase
-	origins map[string]struct{}
+	origins    map[string]struct{}
 }
 
 func NewMiddlewareManager(sessUse session.SessionUsecase) *MiddlewareManager {
 	return &MiddlewareManager{
 		sessionUse: sessUse,
-		origins: map[string]struct{} {
-			"": {},
+		origins: map[string]struct{}{
+			"":                 {},
 			"http://localhost": {},
 		},
 	}
 }
 
 func (mwm *MiddlewareManager) CORS(next http.Handler) http.Handler {
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		origin := r.Header.Get("Origin")
 
 		if _, found := mwm.origins[origin]; found {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
+
 		} else {
 			logger.Warn("Request from unknown host: " + origin)
 			err := errors.Get(consts.CodeMethodNotAllowed)
 			response.WriteErrorResponse(w, ctx, err)
+
 			return
 		}
 
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Language, Content-Type, Content" +
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Language, Content-Type, Content"+
 			"-Encoding")
 
 		if r.Method == "OPTIONS" {
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
+
 }
 
 func (mwm *MiddlewareManager) PanicCoverMiddleware(next http.Handler) http.Handler {

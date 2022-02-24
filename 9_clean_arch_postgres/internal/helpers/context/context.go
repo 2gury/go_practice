@@ -8,13 +8,11 @@ import (
 
 type ContextKey int
 
-
 const (
 	StatusCode ContextKey = 101 + iota
 	SessionValue
 	UserId
 )
-
 
 func WriteStatusCodeContext(ctx context.Context, code int) {
 	statusCode, ok := ctx.Value(StatusCode).(*int)
