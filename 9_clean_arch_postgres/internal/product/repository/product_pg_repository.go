@@ -56,7 +56,7 @@ func (r *ProductPgRepository) SelectById(id uint64) (*models.Product, error) {
 	return prod, nil
 }
 
-func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
+func (r *ProductPgRepository) Insert(product *models.Product) (uint64, error) {
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
 		return 0, err
@@ -78,7 +78,7 @@ func (r *ProductPgRepository) Insert(product models.Product) (uint64, error) {
 	return uint64(lastId), nil
 }
 
-func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct models.Product) error {
+func (r *ProductPgRepository) UpdateById(productId uint64, updatedProduct *models.Product) error {
 	tx, err := r.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
 	if err != nil {
 		return err

@@ -10,7 +10,7 @@ type UserUsecase interface {
 	GetByEmail(email string) (*models.User, *errors.Error)
 	Create(*models.User) (uint64, *errors.Error)
 	ComparePasswords(password, repeatedPassword string) *errors.Error
-	ComparePasswordAndHash(usr *models.User, password string) (*errors.Error)
+	ComparePasswordAndHash(usr *models.User, password string) *errors.Error
 	UpdateUserPassword(usr *models.User) *errors.Error
 	DeleteUserById(id uint64) *errors.Error
 }

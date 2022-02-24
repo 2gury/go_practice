@@ -28,7 +28,7 @@ func (u *ProductUsecase) List() ([]*models.Product, *errors.Error) {
 	return products, nil
 }
 
-func (u *ProductUsecase) Create(product models.Product) (uint64, *errors.Error) {
+func (u *ProductUsecase) Create(product *models.Product) (uint64, *errors.Error) {
 	if product.Price <= 0 || product.Title == "" {
 		return 0, errors.New(consts.CodeBadRequest, systetmErrors.New(
 			"Error when add product. Price should be greater than 0. Title should be not empty"))
@@ -52,7 +52,7 @@ func (u *ProductUsecase) GetById(id uint64) (*models.Product, *errors.Error) {
 
 	return prod, nil
 }
-func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct models.Product) *errors.Error {
+func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct *models.Product) *errors.Error {
 	if updatedProduct.Price <= 0 || updatedProduct.Title == "" {
 		return errors.New(consts.CodeBadRequest, systetmErrors.New(
 			"Error when add product. Price should be greater than 0. Title should be not empty"))

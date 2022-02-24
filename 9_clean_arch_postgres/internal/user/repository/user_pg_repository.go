@@ -41,7 +41,7 @@ func (r *UserPgRepository) Insert(usr *models.User) (uint64, error) {
 	err = tx.QueryRow(
 		`INSERT INTO users(email, password)
 			    VALUES ($1, $2) RETURNING id`,
-			    usr.Email, usr.Password).Scan(&lastId)
+		usr.Email, usr.Password).Scan(&lastId)
 	if err != nil {
 		if rollBackError := tx.Rollback(); rollBackError != nil {
 			log.Fatal(rollBackError.Error())

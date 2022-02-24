@@ -63,7 +63,6 @@ func main() {
 	productHnd.Configure(mux, mwManager)
 	sessHnd.Configure(mux, mwManager)
 
-
 	srv := config.NewServer("8080", mux)
 	log.Fatal(srv.Run())
 }
