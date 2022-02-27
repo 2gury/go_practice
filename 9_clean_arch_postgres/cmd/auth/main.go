@@ -15,7 +15,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	lis, err := net.Listen("tcp", ":8082")
+	lis, err := net.Listen("tcp", confg.GetAuthConnectionServerString())
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -32,6 +32,6 @@ func main() {
 	server := grpc.NewServer()
 	grpcSess.RegisterSessionServiceServer(server, grpcSess.NewSessionService(sessRep))
 
-	log.Println("starting session service at :8082")
+	log.Printf("starting session service at %s", confg.GetAuthConnectionServerString())
 	server.Serve(lis)
 }

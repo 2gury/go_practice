@@ -26,11 +26,20 @@ type Database struct {
 	Port     int    `json:"port"`
 }
 
+type Server struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
+
 type Config struct {
-	Postgres   Database `json:"postgres"`
-	Redis      Database `json:"redis"`
-	LoggerFile string   `json:"logger"`
-	LogLevel   string   `json:"log_level"`
+	Postgres       Database `json:"postgres"`
+	Redis          Database `json:"redis"`
+	UserService    Server   `json:"user_service"`
+	AuthService    Server   `json:"auth_service"`
+	ProductService Server   `json:"product_service"`
+	LoggerFile     string   `json:"logger"`
+	LogLevel       string   `json:"log_level"`
+	IpAddress       string   `json:"ip_address"`
 }
 
 func (d *Database) GetPostgresDbConnection() (*sql.DB, error) {
@@ -85,3 +94,28 @@ func (c *Config) GetLoggerDir() string {
 func (c *Config) GetLogLevel() int {
 	return logLevels[c.LogLevel]
 }
+
+func (c *Config) GetAuthConnectionServerString() string {
+	return fmt.Sprintf("%s:%d", c.AuthService.Host, c.AuthService.Port)
+}
+
+func (c *Config) GetUserConnectionServerString() string {
+	return fmt.Sprintf("%s:%d", c.UserService.Host, c.UserService.Port)
+}
+
+func (c *Config) GetProductConnectionServerString() string {
+	return fmt.Sprintf("%s:%d", c.ProductService.Host, c.ProductService.Port)
+}
+
+func (c *Config) GetAuthConnectionClientString() string {
+	return fmt.Sprintf("%s:%d", c.IpAddress, c.AuthService.Port)
+}
+
+func (c *Config) GetUserConnectionClientString() string {
+	return fmt.Sprintf("%s:%d", c.IpAddress, c.UserService.Port)
+}
+
+func (c *Config) GetProductConnectionClientString() string {
+	return fmt.Sprintf("%s:%d", c.IpAddress, c.ProductService.Port)
+}
+

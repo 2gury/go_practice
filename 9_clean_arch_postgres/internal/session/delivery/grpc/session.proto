@@ -19,8 +19,12 @@ message SessionValue {
   string Value = 1;
 }
 
+message SessionUserIdValue {
+  uint64 Value = 1;
+}
+
 service SessionService {
-  rpc Create(Session) returns (google.protobuf.Empty) {}
+  rpc Create(SessionUserIdValue) returns (Session) {}
   rpc Check(SessionValue) returns (Session) {}
   rpc Delete(SessionValue) returns (google.protobuf.Empty) {}
 }
