@@ -30,28 +30,33 @@ func NewBookStore() *BookStore {
 func (bs *BookStore) AddBook(book BookInput) (int, error) {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+	
 	bs.books = append(bs.books, &Book{
 		Id:    bs.nextId,
 		Title: book.Title,
 		Price: book.Price,
 	})
 	bs.nextId++
+	
 	return bs.nextId - 1, nil
 }
 
 func (bs *BookStore) GetBooks() (*[]*Book, error) {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+	
 	return &bs.books, nil
 }
 
 func (bs *BookStore) GetBookById(id int) (*Book, error) {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+	
 	for i := 0; i < len(bs.books); i++ {
 		if bs.books[i].Id == id {
 			return bs.books[i], nil
 		}
 	}
+	
 	return nil, nil
 }
