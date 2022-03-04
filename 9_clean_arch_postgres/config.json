@@ -11,6 +11,19 @@
     "host": "localhost",
     "port": 6379
   },
+  "user_service": {
+    "host": "localhost",
+    "port": 8081
+  },
+  "auth_service": {
+    "host": "localhost",
+    "port": 8082
+  },
+  "product_service": {
+    "host": "localhost",
+    "port": 8083
+  },
   "logger": "./logs.log",
-  "log_level": "INFO"
+  "log_level": "INFO",
+  "ip_address": "127.0.0.1"
 }

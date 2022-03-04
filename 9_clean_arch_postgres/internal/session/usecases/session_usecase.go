@@ -1,48 +1,45 @@
 package usecases
 
 import (
-	"go_practice/9_clean_arch_db/internal/consts"
+	"context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
 	"go_practice/9_clean_arch_db/internal/session"
-	"go_practice/9_clean_arch_db/tools/password"
+	"go_practice/9_clean_arch_db/internal/session/delivery/grpc"
 )
 
 type SessionUsecase struct {
-	sessionRep session.SessionRepository
+	sessionSvc grpc.SessionServiceClient
 }
 
-func NewSessionUsecase(rep session.SessionRepository) session.SessionUsecase {
+func NewSessionUsecase(svc grpc.SessionServiceClient) session.SessionUsecase {
 	return &SessionUsecase{
-		sessionRep: rep,
+		sessionSvc: svc,
 	}
 }
 
 func (u *SessionUsecase) Create(userId uint64) (*models.Session, *errors.Error) {
-	sess := models.NewSession(userId)
-	sess.Value = password.GetMD5Hash(sess.Value)
-
-	err := u.sessionRep.Create(sess)
+	sess, err := u.sessionSvc.Create(context.Background(), &grpc.SessionUserIdValue{Value: userId})
 	if err != nil {
-		return nil, errors.Get(consts.CodeInternalError)
+		return nil, errors.GetCustomError(err)
 	}
 
-	return sess, nil
+	return grpc.GrpcSessionToModel(sess), nil
 }
 
 func (u *SessionUsecase) Check(sessValue string) (*models.Session, *errors.Error) {
-	sess, err := u.sessionRep.Get(sessValue)
+	sess, err := u.sessionSvc.Check(context.Background(), &grpc.SessionValue{Value: sessValue})
 	if err != nil {
-		return nil, errors.Get(consts.CodeInternalError)
+		return nil, errors.GetCustomError(err)
 	}
 
-	return sess, nil
+	return grpc.GrpcSessionToModel(sess), nil
 }
 
 func (u *SessionUsecase) Delete(sessValue string) *errors.Error {
-	err := u.sessionRep.Delete(sessValue)
+	_, err := u.sessionSvc.Delete(context.Background(), &grpc.SessionValue{Value: sessValue})
 	if err != nil {
-		return errors.Get(consts.CodeInternalError)
+		return errors.GetCustomError(err)
 	}
 
 	return nil
