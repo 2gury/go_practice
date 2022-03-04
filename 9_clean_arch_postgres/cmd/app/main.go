@@ -5,15 +5,17 @@ import (
 	"go_practice/9_clean_arch_db/config"
 	"go_practice/9_clean_arch_db/internal/mwares"
 	productHandler "go_practice/9_clean_arch_db/internal/product/delivery"
-	productRepository "go_practice/9_clean_arch_db/internal/product/repository"
+	grpcProduct "go_practice/9_clean_arch_db/internal/product/delivery/grpc"
 	productUsecase "go_practice/9_clean_arch_db/internal/product/usecases"
 	sessHandler "go_practice/9_clean_arch_db/internal/session/delivery"
-	sessRepository "go_practice/9_clean_arch_db/internal/session/repository"
+	grpcSess "go_practice/9_clean_arch_db/internal/session/delivery/grpc"
 	sessUsecase "go_practice/9_clean_arch_db/internal/session/usecases"
 	userHandler "go_practice/9_clean_arch_db/internal/user/delivery"
-	userRepository "go_practice/9_clean_arch_db/internal/user/repository"
+	grpcUser "go_practice/9_clean_arch_db/internal/user/delivery/grpc"
 	userUsecase "go_practice/9_clean_arch_db/internal/user/usecases"
 	"go_practice/9_clean_arch_db/tools/logger"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 )
 
@@ -40,17 +42,33 @@ func main() {
 	}
 	defer redisConnection.Close()
 
-	userRep := userRepository.NewUserPgRepository(postgresConnection)
-	userUse := userUsecase.NewUserUsecase(userRep)
+	sessionGrpcConn, err := grpc.Dial(confg.GetAuthConnectionClientString(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer sessionGrpcConn.Close()
+	sessServiceClient := grpcSess.NewSessionServiceClient(sessionGrpcConn)
 
-	productRep := productRepository.NewProductPgRepository(postgresConnection)
-	productUse := productUsecase.NewProductUsecase(productRep)
-	productHnd := productHandler.NewProductHandler(productUse)
+	userGrpcConn, err := grpc.Dial(confg.GetUserConnectionClientString(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer userGrpcConn.Close()
+	userServiceClient := grpcUser.NewUserServiceClient(userGrpcConn)
 
-	sessRep := sessRepository.NewSessionRdRepository(redisConnection)
-	sessUse := sessUsecase.NewSessionUsecase(sessRep)
+	productGrpcConn, err := grpc.Dial(confg.GetProductConnectionClientString(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer userGrpcConn.Close()
+	productServiceClient := grpcProduct.NewProductServiceClient(productGrpcConn)
+
+	productUse := productUsecase.NewProductUsecase(productServiceClient)
+	userUse := userUsecase.NewUserUsecase(userServiceClient)
+	sessUse := sessUsecase.NewSessionUsecase(sessServiceClient)
 	sessHnd := sessHandler.NewSessionHandler(sessUse, userUse)
 	userHnd := userHandler.NewUserHandler(userUse, sessUse)
+	productHnd := productHandler.NewProductHandler(productUse)
 
 	mux := mux.NewRouter()
 

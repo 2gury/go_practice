@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+//protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative  internal/product/delivery/grpc/product.proto
+
+package protobuf_session;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "/grpc";
+
+message Product {
+  uint64 Id = 1;
+  string Title = 2;
+  int64 Price = 3;
+}
+
+message ProductIdValue {
+  uint64 Value = 1;
+}
+
+message ArrayProducts {
+  repeated Product Value = 1;
+}
+
+message UpdateInfoProduct {
+  ProductIdValue id = 1;
+  Product product = 2;
+}
+
+service ProductService {
+  rpc List(google.protobuf.Empty) returns (ArrayProducts) {}
+  rpc Create(Product) returns (ProductIdValue) {}
+  rpc GetById(ProductIdValue) returns (Product) {}
+  rpc UpdateById(UpdateInfoProduct) returns (google.protobuf.Empty) {}
+  rpc DeleteById(ProductIdValue) returns (google.protobuf.Empty) {}
+}
+
+

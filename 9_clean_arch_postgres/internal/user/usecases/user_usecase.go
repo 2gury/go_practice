@@ -1,82 +1,64 @@
 package usecases
 
 import (
-	"database/sql"
+	"context"
 	"go_practice/9_clean_arch_db/internal/consts"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
 	"go_practice/9_clean_arch_db/internal/user"
+	"go_practice/9_clean_arch_db/internal/user/delivery/grpc"
 	"go_practice/9_clean_arch_db/tools/password"
 )
 
 type UserUsecase struct {
-	userRep user.UserRepository
+	userSvc grpc.UserServiceClient
 }
 
-func NewUserUsecase(rep user.UserRepository) user.UserUsecase {
+func NewUserUsecase(svc grpc.UserServiceClient) user.UserUsecase {
 	return &UserUsecase{
-		userRep: rep,
+		userSvc: svc,
 	}
 }
 
 func (u *UserUsecase) GetById(id uint64) (*models.User, *errors.Error) {
-	usr, err := u.userRep.SelectById(id)
+	usr, err := u.userSvc.GetById(context.Background(), &grpc.UserIdValue{Value: id})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errors.Get(consts.CodeUserDoesNotExist)
-		}
-		return nil, errors.Get(consts.CodeInternalError)
+		return nil, errors.GetCustomError(err)
 	}
 
-	return usr, nil
+	return grpc.GrpcUserToModel(usr), nil
 }
 
 func (u *UserUsecase) GetByEmail(email string) (*models.User, *errors.Error) {
-	usr, err := u.userRep.SelectByEmail(email)
+	usr, err := u.userSvc.GetByEmail(context.Background(), &grpc.EmailValue{Value: email})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errors.Get(consts.CodeUserDoesNotExist)
-		}
-		return nil, errors.Get(consts.CodeInternalError)
+		return nil, errors.GetCustomError(err)
 	}
 
-	return usr, nil
+	return grpc.GrpcUserToModel(usr), nil
 }
 
 func (u *UserUsecase) Create(usr *models.User) (uint64, *errors.Error) {
-	hashedPassword, err := password.HashPassword(usr.Password)
+	lastId, err := u.userSvc.Create(context.Background(), grpc.ModelUserToGrpc(usr))
 	if err != nil {
-		return 0, errors.Get(consts.CodeInternalError)
-	}
-	usr.Password = hashedPassword
-
-	lastId, err := u.userRep.Insert(usr)
-	if err != nil {
-		return 0, errors.Get(consts.CodeInternalError)
+		return 0, errors.GetCustomError(err)
 	}
 
-	return lastId, nil
+	return lastId.Value, nil
 }
 
 func (u *UserUsecase) UpdateUserPassword(usr *models.User) *errors.Error {
-	hashedPassword, err := password.HashPassword(usr.Password)
+	_, err := u.userSvc.UpdateUserPassword(context.Background(), grpc.ModelUserToGrpc(usr))
 	if err != nil {
-		return errors.Get(consts.CodeInternalError)
-	}
-	usr.Password = hashedPassword
-
-	err = u.userRep.UpdatePassword(usr)
-	if err != nil {
-		return errors.Get(consts.CodeInternalError)
+		return errors.GetCustomError(err)
 	}
 	return nil
-
 }
 
 func (u *UserUsecase) DeleteUserById(id uint64) *errors.Error {
-	err := u.userRep.DeleteById(id)
+	_, err := u.userSvc.DeleteUserById(context.Background(), &grpc.UserIdValue{Value: id})
 	if err != nil {
-		return errors.Get(consts.CodeInternalError)
+		return errors.GetCustomError(err)
 	}
 
 	return nil

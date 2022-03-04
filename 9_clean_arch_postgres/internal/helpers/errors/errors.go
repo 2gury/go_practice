@@ -2,6 +2,8 @@ package errors
 
 import (
 	"go_practice/9_clean_arch_db/internal/consts"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"net/http"
 )
 
@@ -32,6 +34,18 @@ func Get(code consts.ErrorCode) *Error {
 		return WrongErrorCode
 	}
 	return customErr
+}
+
+func GetCustomError(err error) *Error {
+	customErr, has := Errors[consts.ErrorCode(status.Code(err))]
+	if !has {
+		return New(consts.CodeInternalError, err)
+	}
+	return customErr
+}
+
+func GetErrorFromGrpc(code consts.ErrorCode, err error) error {
+	return status.Error(codes.Code(code), err.Error())
 }
 
 var Errors = map[consts.ErrorCode]*Error{

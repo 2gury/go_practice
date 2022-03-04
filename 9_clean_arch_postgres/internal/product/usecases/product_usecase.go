@@ -1,81 +1,65 @@
 package usecases
 
 import (
-	"database/sql"
-	systetmErrors "github.com/pkg/errors"
-	"go_practice/9_clean_arch_db/internal/consts"
+	"context"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
 	"go_practice/9_clean_arch_db/internal/product"
+	"go_practice/9_clean_arch_db/internal/product/delivery/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type ProductUsecase struct {
-	productRep product.ProductRepository
+	productSvc grpc.ProductServiceClient
 }
 
-func NewProductUsecase(rep product.ProductRepository) product.ProductUsecase {
+func NewProductUsecase(svc grpc.ProductServiceClient) product.ProductUsecase {
 	return &ProductUsecase{
-		productRep: rep,
+		productSvc: svc,
 	}
 }
 
 func (u *ProductUsecase) List() ([]*models.Product, *errors.Error) {
-	products, err := u.productRep.SelectAll()
+	products, err := u.productSvc.List(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		return nil, errors.Get(consts.CodeInternalError)
+		return nil, errors.GetCustomError(err)
 	}
 
-	return products, nil
+	return grpc.GrpcProductsToModelProducts(products), nil
 }
 
 func (u *ProductUsecase) Create(product *models.Product) (uint64, *errors.Error) {
-	if product.Price <= 0 || product.Title == "" {
-		return 0, errors.New(consts.CodeBadRequest, systetmErrors.New(
-			"Error when add product. Price should be greater than 0. Title should be not empty"))
-	}
-
-	id, err := u.productRep.Insert(product)
+	id, err := u.productSvc.Create(context.Background(), grpc.ModelProductToGrpc(product))
 	if err != nil {
-		return 0, errors.Get(consts.CodeInternalError)
+		return 0, errors.GetCustomError(err)
 	}
 
-	return id, nil
+	return id.Value, nil
 }
 func (u *ProductUsecase) GetById(id uint64) (*models.Product, *errors.Error) {
-	prod, err := u.productRep.SelectById(id)
+	prod, err := u.productSvc.GetById(context.Background(), &grpc.ProductIdValue{Value: id})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errors.Get(consts.CodeProductDoesNotExist)
-		}
-		return nil, errors.Get(consts.CodeInternalError)
+		return nil, errors.GetCustomError(err)
 	}
 
-	return prod, nil
+	return grpc.GrpcProductToModel(prod), nil
 }
 func (u *ProductUsecase) UpdateById(productId uint64, updatedProduct *models.Product) *errors.Error {
-	if updatedProduct.Price <= 0 || updatedProduct.Title == "" {
-		return errors.New(consts.CodeBadRequest, systetmErrors.New(
-			"Error when add product. Price should be greater than 0. Title should be not empty"))
-	}
-
-	if _, err := u.GetById(productId); err != nil {
-		return err
-	}
-	err := u.productRep.UpdateById(productId, updatedProduct)
+	_, err := u.productSvc.UpdateById(context.Background(), &grpc.UpdateInfoProduct{
+		Id: &grpc.ProductIdValue{Value: productId},
+		Product: grpc.ModelProductToGrpc(updatedProduct),
+	})
 	if err != nil {
-		return errors.Get(consts.CodeInternalError)
+		return errors.GetCustomError(err)
 	}
 
 	return nil
 }
 
 func (u *ProductUsecase) DeleteById(id uint64) *errors.Error {
-	if _, err := u.GetById(id); err != nil {
-		return err
-	}
-	err := u.productRep.DeleteById(id)
+	_, err := u.productSvc.DeleteById(context.Background(), &grpc.ProductIdValue{Value: id})
 	if err != nil {
-		return errors.Get(consts.CodeInternalError)
+		return errors.GetCustomError(err)
 	}
 
 	return nil
