@@ -23,7 +23,6 @@ func main() {
 
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
-
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		nums := []*summator.Nums {
@@ -64,6 +63,5 @@ func main() {
 			log.Printf("<- %v\n", res)
 		}
 	} (wg)
-
 	wg.Wait()
 }
