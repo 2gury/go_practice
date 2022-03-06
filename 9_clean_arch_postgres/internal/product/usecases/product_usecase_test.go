@@ -1,19 +1,20 @@
 package usecases
 
 import (
-	"database/sql"
-	"fmt"
+	"context"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"go_practice/9_clean_arch_db/internal/consts"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
-	mock_product "go_practice/9_clean_arch_db/internal/product/mocks"
+	"go_practice/9_clean_arch_db/internal/product/delivery/grpc"
+	mock_grpc "go_practice/9_clean_arch_db/internal/product/delivery/grpc/mocks"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"testing"
 )
 
-func TestProductHandler_GetProducts(t *testing.T) {
-	type mockBehaviour func(productRep *mock_product.MockProductRepository, products []*models.Product)
+func TestProductUsecase_List(t *testing.T) {
+	type mockBehaviour func(productSvc *mock_grpc.MockProductServiceClient, products []*models.Product)
 	t.Parallel()
 
 	testTable := []struct {
@@ -24,33 +25,33 @@ func TestProductHandler_GetProducts(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, products []*models.Product) {
-				productRep.
+			mockBehaviour: func(productSvc *mock_grpc.MockProductServiceClient, products []*models.Product) {
+				productSvc.
 					EXPECT().
-					SelectAll().
-					Return(products, nil)
+					List(context.Background(), &emptypb.Empty{}).
+					Return(grpc.ModelProductsToGrpcProducts(products), nil)
 			},
-			products: []*models.Product{
+			products: []*models.Product {
 				&models.Product{
 					Id:    1,
 					Title: "WB",
 					Price: 120,
 				},
-				&models.Product{
+				&models.Product {
 					Id:    2,
 					Title: "Ozon",
 					Price: 500,
 				},
 			},
-			expError: nil,
+			expError: (*errors.Error)(nil),
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, products []*models.Product) {
-				productRep.
+			mockBehaviour: func(productSvc *mock_grpc.MockProductServiceClient, products []*models.Product) {
+				productSvc.
 					EXPECT().
-					SelectAll().
-					Return(nil, fmt.Errorf("repository error"))
+					List(context.Background(), &emptypb.Empty{}).
+					Return(nil, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			products: nil,
 			expError: errors.Get(consts.CodeInternalError),
@@ -61,9 +62,9 @@ func TestProductHandler_GetProducts(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			productRep := mock_product.NewMockProductRepository(ctrl)
-			testCase.mockBehaviour(productRep, testCase.products)
-			productUsecase := NewProductUsecase(productRep)
+			productSvc := mock_grpc.NewMockProductServiceClient(ctrl)
+			testCase.mockBehaviour(productSvc, testCase.products)
+			productUsecase := NewProductUsecase(productSvc)
 
 			prods, err := productUsecase.List()
 
@@ -74,7 +75,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 }
 
 func TestProductUsecase_Create(t *testing.T) {
-	type mockBehaviour func(productRep *mock_product.MockProductRepository, product *models.Product)
+	type mockBehaviour func(productSvc *mock_grpc.MockProductServiceClient, product *models.Product)
 	t.Parallel()
 
 	testTable := []struct {
@@ -86,11 +87,11 @@ func TestProductUsecase_Create(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, product *models.Product) {
-				productRep.
+			mockBehaviour: func(productSvc *mock_grpc.MockProductServiceClient, product *models.Product) {
+				productSvc.
 					EXPECT().
-					Insert(product).
-					Return(uint64(1), nil)
+					Create(context.Background(), grpc.ModelProductToGrpc(product)).
+					Return(&grpc.ProductIdValue{Value: 1}, nil)
 			},
 			product: &models.Product{
 				Title: "WB",
@@ -101,11 +102,11 @@ func TestProductUsecase_Create(t *testing.T) {
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, product *models.Product) {
-				productRep.
+			mockBehaviour: func(productSvc *mock_grpc.MockProductServiceClient, product *models.Product) {
+				productSvc.
 					EXPECT().
-					Insert(product).
-					Return(uint64(0), fmt.Errorf("repository error"))
+					Create(context.Background(), grpc.ModelProductToGrpc(product)).
+					Return(nil, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			product: &models.Product{
 				Title: "WB",
@@ -120,9 +121,9 @@ func TestProductUsecase_Create(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			productRep := mock_product.NewMockProductRepository(ctrl)
-			testCase.mockBehaviour(productRep, testCase.product)
-			productUsecase := NewProductUsecase(productRep)
+			productSvc := mock_grpc.NewMockProductServiceClient(ctrl)
+			testCase.mockBehaviour(productSvc, testCase.product)
+			productUsecase := NewProductUsecase(productSvc)
 
 			lastId, err := productUsecase.Create(testCase.product)
 
@@ -133,7 +134,7 @@ func TestProductUsecase_Create(t *testing.T) {
 }
 
 func TestProductUsecase_GetById(t *testing.T) {
-	type mockBehaviour func(productRep *mock_product.MockProductRepository, productID uint64, product *models.Product)
+	type mockBehaviour func(productSvc *mock_grpc.MockProductServiceClient, productID uint64, product *models.Product)
 	t.Parallel()
 
 	testTable := []struct {
@@ -145,11 +146,11 @@ func TestProductUsecase_GetById(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, productId uint64, product *models.Product) {
-				productRep.
+			mockBehaviour: func(productSvc *mock_grpc.MockProductServiceClient, productId uint64, product *models.Product) {
+				productSvc.
 					EXPECT().
-					SelectById(productId).
-					Return(product, nil)
+					GetById(context.Background(), &grpc.ProductIdValue{Value: productId}).
+					Return(grpc.ModelProductToGrpc(product), nil)
 			},
 			productId: 1,
 			expError:  nil,
@@ -161,11 +162,11 @@ func TestProductUsecase_GetById(t *testing.T) {
 		},
 		{
 			name: "Error: CodeProductDoesNotExist",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, productId uint64, product *models.Product) {
-				productRep.
+			mockBehaviour: func(productSvc *mock_grpc.MockProductServiceClient, productId uint64, product *models.Product) {
+				productSvc.
 					EXPECT().
-					SelectById(productId).
-					Return(nil, sql.ErrNoRows)
+					GetById(context.Background(), &grpc.ProductIdValue{Value: productId}).
+					Return(nil, errors.GetErrorFromGrpc(consts.CodeProductDoesNotExist, errors.NilErrror))
 			},
 			productId: 1000,
 			expError:  errors.Get(consts.CodeProductDoesNotExist),
@@ -173,11 +174,11 @@ func TestProductUsecase_GetById(t *testing.T) {
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviour: func(productRep *mock_product.MockProductRepository, productId uint64, product *models.Product) {
-				productRep.
+			mockBehaviour: func(productSvc *mock_grpc.MockProductServiceClient, productId uint64, product *models.Product) {
+				productSvc.
 					EXPECT().
-					SelectById(productId).
-					Return(nil, fmt.Errorf("repository error"))
+					GetById(context.Background(), &grpc.ProductIdValue{Value: productId}).
+					Return(nil, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			productId: 1,
 			expError:  errors.Get(consts.CodeInternalError),
@@ -189,9 +190,9 @@ func TestProductUsecase_GetById(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			productRep := mock_product.NewMockProductRepository(ctrl)
-			testCase.mockBehaviour(productRep, testCase.productId, testCase.expOutput)
-			productUsecase := NewProductUsecase(productRep)
+			productSvc := mock_grpc.NewMockProductServiceClient(ctrl)
+			testCase.mockBehaviour(productSvc, testCase.productId, testCase.expOutput)
+			productUsecase := NewProductUsecase(productSvc)
 
 			lastId, err := productUsecase.GetById(testCase.productId)
 
@@ -202,13 +203,12 @@ func TestProductUsecase_GetById(t *testing.T) {
 }
 
 func TestProductUsecase_UpdateById(t *testing.T) {
-	type mockBehaviourGetById func(productRep *mock_product.MockProductRepository, productId uint64)
-	type mockBehaviourUpdateById func(productRep *mock_product.MockProductRepository, productID uint64, product *models.Product)
+	type mockBehaviourGetById func(productSvc *mock_grpc.MockProductServiceClient, productId uint64)
+	type mockBehaviourUpdateById func(productSvc *mock_grpc.MockProductServiceClient, productID uint64, product *models.Product)
 	t.Parallel()
 
 	testTable := []struct {
 		name                    string
-		mockBehaviourGetById    mockBehaviourGetById
 		mockBehaviourUpdateById mockBehaviourUpdateById
 		productId               uint64
 		product                 *models.Product
@@ -216,17 +216,14 @@ func TestProductUsecase_UpdateById(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			mockBehaviourGetById: func(productRep *mock_product.MockProductRepository, productId uint64) {
-				productRep.
+			mockBehaviourUpdateById: func(productSvc *mock_grpc.MockProductServiceClient, productId uint64, product *models.Product) {
+				productSvc.
 					EXPECT().
-					SelectById(productId).
-					Return(nil, nil)
-			},
-			mockBehaviourUpdateById: func(productRep *mock_product.MockProductRepository, productId uint64, product *models.Product) {
-				productRep.
-					EXPECT().
-					UpdateById(productId, product).
-					Return(nil)
+					UpdateById(context.Background(), &grpc.UpdateInfoProduct{
+						Id: &grpc.ProductIdValue{Value: productId},
+						Product: grpc.ModelProductToGrpc(product),
+					}).
+					Return(&emptypb.Empty{}, nil)
 			},
 			productId: 1,
 			product: &models.Product{
@@ -237,17 +234,14 @@ func TestProductUsecase_UpdateById(t *testing.T) {
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviourGetById: func(productRep *mock_product.MockProductRepository, productId uint64) {
-				productRep.
+			mockBehaviourUpdateById: func(productSvc *mock_grpc.MockProductServiceClient, productId uint64, product *models.Product) {
+				productSvc.
 					EXPECT().
-					SelectById(productId).
-					Return(nil, nil)
-			},
-			mockBehaviourUpdateById: func(productRep *mock_product.MockProductRepository, productId uint64, product *models.Product) {
-				productRep.
-					EXPECT().
-					UpdateById(productId, product).
-					Return(fmt.Errorf("repository error"))
+					UpdateById(context.Background(), &grpc.UpdateInfoProduct{
+						Id: &grpc.ProductIdValue{Value: productId},
+						Product: grpc.ModelProductToGrpc(product),
+					}).
+					Return(&emptypb.Empty{}, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			productId: 1,
 			product: &models.Product{
@@ -262,10 +256,9 @@ func TestProductUsecase_UpdateById(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			productRep := mock_product.NewMockProductRepository(ctrl)
-			testCase.mockBehaviourGetById(productRep, testCase.productId)
-			testCase.mockBehaviourUpdateById(productRep, testCase.productId, testCase.product)
-			productUsecase := NewProductUsecase(productRep)
+			productSvc := mock_grpc.NewMockProductServiceClient(ctrl)
+			testCase.mockBehaviourUpdateById(productSvc, testCase.productId, testCase.product)
+			productUsecase := NewProductUsecase(productSvc)
 
 			err := productUsecase.UpdateById(testCase.productId, testCase.product)
 
@@ -275,13 +268,12 @@ func TestProductUsecase_UpdateById(t *testing.T) {
 }
 
 func TestProductUsecase_DeleteById(t *testing.T) {
-	type mockBehaviourGetById func(productRep *mock_product.MockProductRepository, productId uint64)
-	type mockBehaviourDeleteById func(productRep *mock_product.MockProductRepository, productID uint64)
+	type mockBehaviourGetById func(productSvc *mock_grpc.MockProductServiceClient, productId uint64)
+	type mockBehaviourDeleteById func(productSvc *mock_grpc.MockProductServiceClient, productID uint64)
 	t.Parallel()
 
 	testTable := []struct {
 		name                    string
-		mockBehaviourGetById    mockBehaviourGetById
 		mockBehaviourDeleteById mockBehaviourDeleteById
 		productId               uint64
 		product                 *models.Product
@@ -289,41 +281,25 @@ func TestProductUsecase_DeleteById(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			mockBehaviourGetById: func(productRep *mock_product.MockProductRepository, productId uint64) {
-				productRep.
+			mockBehaviourDeleteById: func(productSvc *mock_grpc.MockProductServiceClient, productId uint64) {
+				productSvc.
 					EXPECT().
-					SelectById(productId).
-					Return(nil, nil)
-			},
-			mockBehaviourDeleteById: func(productRep *mock_product.MockProductRepository, productId uint64) {
-				productRep.
-					EXPECT().
-					DeleteById(productId).
-					Return(nil)
+					DeleteById(context.Background(), &grpc.ProductIdValue{Value: productId}).
+					Return(&emptypb.Empty{}, nil)
 			},
 			productId: 1,
 			expError:  nil,
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviourGetById: func(productRep *mock_product.MockProductRepository, productId uint64) {
-				productRep.
+			mockBehaviourDeleteById: func(productSvc *mock_grpc.MockProductServiceClient, productId uint64) {
+				productSvc.
 					EXPECT().
-					SelectById(productId).
-					Return(nil, nil)
-			},
-			mockBehaviourDeleteById: func(productRep *mock_product.MockProductRepository, productId uint64) {
-				productRep.
-					EXPECT().
-					DeleteById(productId).
-					Return(fmt.Errorf("repository error"))
+					DeleteById(context.Background(), &grpc.ProductIdValue{Value: productId}).
+					Return(&emptypb.Empty{}, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			productId: 1,
-			product: &models.Product{
-				Title: "Ozon",
-				Price: 500,
-			},
-			expError: errors.Get(consts.CodeInternalError),
+			expError:  errors.Get(consts.CodeInternalError),
 		},
 	}
 
@@ -331,10 +307,9 @@ func TestProductUsecase_DeleteById(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			productRep := mock_product.NewMockProductRepository(ctrl)
-			testCase.mockBehaviourGetById(productRep, testCase.productId)
-			testCase.mockBehaviourDeleteById(productRep, testCase.productId)
-			productUsecase := NewProductUsecase(productRep)
+			productSvc := mock_grpc.NewMockProductServiceClient(ctrl)
+			testCase.mockBehaviourDeleteById(productSvc, testCase.productId)
+			productUsecase := NewProductUsecase(productSvc)
 
 			err := productUsecase.DeleteById(testCase.productId)
 
