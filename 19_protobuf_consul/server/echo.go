@@ -17,6 +17,7 @@ func NewEcho(port string) *Echo {
 }
 
 func (e *Echo) Say(ctx context.Context, input *echo.Input) (*echo.Output, error) {
+	
 	return &echo.Output{
 		Message: input.Message + " " + e.host,
 	}, nil
