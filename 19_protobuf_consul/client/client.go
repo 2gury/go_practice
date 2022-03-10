@@ -16,7 +16,6 @@ var consulAddr = "127.0.0.1:8500"
 
 func main() {
 	registry.RegisterResolver("consul", &consulapi.Config{Address: consulAddr}, "echo-api")
-
 	grpcConn, err := grpc.Dial(
 		"consul:///",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
