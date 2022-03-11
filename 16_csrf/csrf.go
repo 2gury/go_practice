@@ -142,6 +142,7 @@ func Comment(w http.ResponseWriter, r *http.Request) {
 		Rating: 0,
 	}
 	lastId++
+	
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -206,6 +207,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(24 * time.Hour),
 	}
 	http.SetCookie(w, cookie)
+	
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
