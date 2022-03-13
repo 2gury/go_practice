@@ -1,46 +1,56 @@
 package usecases
 
 import (
-	"fmt"
+	"context"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"go_practice/9_clean_arch_db/internal/consts"
 	"go_practice/9_clean_arch_db/internal/helpers/errors"
 	"go_practice/9_clean_arch_db/internal/models"
-	mock_session "go_practice/9_clean_arch_db/internal/session/mocks"
+	"go_practice/9_clean_arch_db/internal/session/delivery/grpc"
+	mock_grpc "go_practice/9_clean_arch_db/internal/session/delivery/grpc/mocks"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"testing"
+	"time"
 )
 
 func TestSessionUsecase_Create(t *testing.T) {
-	type mockBehaviour func(sessionRep *mock_session.MockSessionRepository)
+	type mockBehaviour func(sessionSvc *mock_grpc.MockSessionServiceClient, sess *models.Session)
 	t.Parallel()
 
 	testTable := []struct {
 		name          string
 		mockBehaviour mockBehaviour
-		inUserId      uint64
+		inUserId uint64
+		outSession      *models.Session
 		expError      *errors.Error
 	}{
 		{
 			name: "OK",
-			mockBehaviour: func(sessionRep *mock_session.MockSessionRepository) {
-				sessionRep.
+			mockBehaviour: func(sessionSvc *mock_grpc.MockSessionServiceClient, sess *models.Session) {
+				sessionSvc.
 					EXPECT().
-					Create(gomock.Any()).
-					Return(nil)
+					Create(context.Background(), gomock.Any()).
+					Return(grpc.ModelSessionToGrpc(sess), nil)
 			},
 			inUserId: 1,
+			outSession: &models.Session{
+				Value: "fsd7gs9segs",
+				UserId: 1,
+				TimeDuration: time.Hour,
+			},
 			expError: nil,
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviour: func(sessionRep *mock_session.MockSessionRepository) {
-				sessionRep.
+			mockBehaviour: func(sessionSvc *mock_grpc.MockSessionServiceClient, sess *models.Session) {
+				sessionSvc.
 					EXPECT().
-					Create(gomock.Any()).
-					Return(fmt.Errorf("redis error"))
+					Create(context.Background(), gomock.Any()).
+					Return(nil, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			inUserId: 1,
+			outSession: nil,
 			expError: errors.Get(consts.CodeInternalError),
 		},
 	}
@@ -49,19 +59,20 @@ func TestSessionUsecase_Create(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			sessionRep := mock_session.NewMockSessionRepository(ctrl)
-			testCase.mockBehaviour(sessionRep)
-			sessionUse := NewSessionUsecase(sessionRep)
+			sessionSvc := mock_grpc.NewMockSessionServiceClient(ctrl)
+			testCase.mockBehaviour(sessionSvc, testCase.outSession)
+			sessionUse := NewSessionUsecase(sessionSvc)
 
-			_, err := sessionUse.Create(testCase.inUserId)
+			sess, err := sessionUse.Create(testCase.inUserId)
 
+			assert.Equal(t, sess, testCase.outSession)
 			assert.Equal(t, err, testCase.expError)
 		})
 	}
 }
 
 func TestSessionUsecase_Check(t *testing.T) {
-	type mockBehaviour func(sessionRep *mock_session.MockSessionRepository, sessValue string, sess *models.Session)
+	type mockBehaviour func(sessionSvc *mock_grpc.MockSessionServiceClient, sessValue string, sess *models.Session)
 	t.Parallel()
 
 	testTable := []struct {
@@ -73,11 +84,11 @@ func TestSessionUsecase_Check(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			mockBehaviour: func(sessionRep *mock_session.MockSessionRepository, sessValue string, sess *models.Session) {
-				sessionRep.
+			mockBehaviour: func(sessionSvc *mock_grpc.MockSessionServiceClient, sessValue string, sess *models.Session) {
+				sessionSvc.
 					EXPECT().
-					Get(sessValue).
-					Return(sess, nil)
+					Check(context.Background(), gomock.Any()).
+					Return(grpc.ModelSessionToGrpc(sess), nil)
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
 			outSess: &models.Session{
@@ -88,11 +99,11 @@ func TestSessionUsecase_Check(t *testing.T) {
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviour: func(sessionRep *mock_session.MockSessionRepository, sessValue string, sess *models.Session) {
-				sessionRep.
+			mockBehaviour: func(sessionSvc *mock_grpc.MockSessionServiceClient, sessValue string, sess *models.Session) {
+				sessionSvc.
 					EXPECT().
-					Get(sessValue).
-					Return(nil, fmt.Errorf("redis error"))
+					Check(context.Background(), gomock.Any()).
+					Return(nil, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
 			outSess:     nil,
@@ -104,9 +115,9 @@ func TestSessionUsecase_Check(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			sessionRep := mock_session.NewMockSessionRepository(ctrl)
-			testCase.mockBehaviour(sessionRep, testCase.inSessValue, testCase.outSess)
-			sessionUse := NewSessionUsecase(sessionRep)
+			sessionSvc := mock_grpc.NewMockSessionServiceClient(ctrl)
+			testCase.mockBehaviour(sessionSvc, testCase.inSessValue, testCase.outSess)
+			sessionUse := NewSessionUsecase(sessionSvc)
 
 			sess, err := sessionUse.Check(testCase.inSessValue)
 
@@ -117,7 +128,7 @@ func TestSessionUsecase_Check(t *testing.T) {
 }
 
 func TestSessionUsecase_Delete(t *testing.T) {
-	type mockBehaviour func(sessionRep *mock_session.MockSessionRepository, sessValue string)
+	type mockBehaviour func(sessionSvc *mock_grpc.MockSessionServiceClient, sessValue string)
 	t.Parallel()
 
 	testTable := []struct {
@@ -128,22 +139,22 @@ func TestSessionUsecase_Delete(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			mockBehaviour: func(sessionRep *mock_session.MockSessionRepository, sessValue string) {
-				sessionRep.
+			mockBehaviour: func(sessionSvc *mock_grpc.MockSessionServiceClient, sessValue string) {
+				sessionSvc.
 					EXPECT().
-					Delete(sessValue).
-					Return(nil)
+					Delete(context.Background(), gomock.Any()).
+					Return(&emptypb.Empty{}, nil)
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
 			expError:    nil,
 		},
 		{
 			name: "Error: CodeInternalError",
-			mockBehaviour: func(sessionRep *mock_session.MockSessionRepository, sessValue string) {
-				sessionRep.
+			mockBehaviour: func(sessionSvc *mock_grpc.MockSessionServiceClient, sessValue string) {
+				sessionSvc.
 					EXPECT().
-					Delete(sessValue).
-					Return(fmt.Errorf("redis error"))
+					Delete(context.Background(), gomock.Any()).
+					Return(&emptypb.Empty{}, errors.GetErrorFromGrpc(consts.CodeInternalError, errors.NilErrror))
 			},
 			inSessValue: "hyufsd9sdf9sfsn",
 			expError:    errors.Get(consts.CodeInternalError),
@@ -154,9 +165,9 @@ func TestSessionUsecase_Delete(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			sessionRep := mock_session.NewMockSessionRepository(ctrl)
-			testCase.mockBehaviour(sessionRep, testCase.inSessValue)
-			sessionUse := NewSessionUsecase(sessionRep)
+			sessionSvc := mock_grpc.NewMockSessionServiceClient(ctrl)
+			testCase.mockBehaviour(sessionSvc, testCase.inSessValue)
+			sessionUse := NewSessionUsecase(sessionSvc)
 
 			err := sessionUse.Delete(testCase.inSessValue)
 

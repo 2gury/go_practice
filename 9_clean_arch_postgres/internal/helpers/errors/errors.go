@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"fmt"
 	"go_practice/9_clean_arch_db/internal/consts"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,6 +19,8 @@ var WrongErrorCode = &Error{
 	Message:     "This error code doesn't exist",
 	UserMessage: "Технические неполадки. Уже чиним",
 }
+
+var NilErrror = fmt.Errorf("")
 
 func New(code consts.ErrorCode, err error) *Error {
 	customErr, has := Errors[code]
