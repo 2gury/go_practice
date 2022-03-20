@@ -40,7 +40,6 @@ func getRemoteResourceNamedError() error {
 
 func getRemoteResourceWrapedError() error {
 	url := "http://127.0.0.1:9999/pages?id=123"
-	
 	_, err := client.Get(url)
 	if err != nil {
 		return errors.Wrap(err, "No resource")
@@ -51,7 +50,6 @@ func getRemoteResourceWrapedError() error {
 
 func getRemoteResourceOwnError() error {
 	url := "http://127.0.0.1:9999/pages?id=123"
-	
 	_, err := client.Get(url)
 	if err != nil {
 		return &ResourceError{
@@ -60,6 +58,7 @@ func getRemoteResourceOwnError() error {
 			Code: http.StatusInternalServerError,
 		}
 	}
+	
 	return nil
 }
 
