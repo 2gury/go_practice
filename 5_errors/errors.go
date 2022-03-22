@@ -20,7 +20,6 @@ func (e *ResourceError) Error() string {
 
 var (
 	client = http.Client{Timeout: time.Duration(time.Second)}
-
 	ErrNoResource = errors.New("No resource")
 )
 
