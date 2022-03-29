@@ -31,6 +31,7 @@ func logoutPage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	
 	cookie.Expires = time.Now().Add(-24 * time.Hour)
 	http.SetCookie(w, cookie)
 	http.Redirect(w, r, "/", http.StatusFound)
